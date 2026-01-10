@@ -1,6 +1,6 @@
 package com.example.app.base
 
-import com.example.app.ApplicationContextProvider
+import com.example.app.base.ApplicationContextProvider
 import com.example.app.config.JwtUtil
 import com.example.app.utils.LogUtils
 import jakarta.servlet.http.HttpServletRequest
@@ -107,7 +107,8 @@ open class BaseController: ResponseEntityExceptionHandler() {
     }
 
 
-    fun<T> autoWired(clazz: Class<T>, nameBean: String?=null, initArgs: Array<Any> ? = arrayOf()): Any? {
+    inline fun <reified T: Any> autoWired(clazz: Class<T>, nameBean: String? = null,
+                                           initArgs: Array<Any>? = arrayOf()): T {
         try {
             nameBean?.let {
                 return context.getBean(nameBean, clazz)
@@ -115,17 +116,15 @@ open class BaseController: ResponseEntityExceptionHandler() {
             return try {
                 try {
                     ApplicationContextProvider.autoWired(clazz)
-                }
-                catch (_: Exception) {
+                } catch (_: Exception) {
                     if (initArgs.isNullOrEmpty()) clazz.getDeclaredConstructor().newInstance()
                     else clazz.getDeclaredConstructor(clazz).newInstance()
                 }
 
-            }
-            catch (e: Exception) {
+            } catch (e: Exception) {
                 e.printStackTrace()
                 clazz.getDeclaredConstructor(clazz).newInstance()
-            }
+            } as T
         }
         catch (e: Exception) {
             e.printStackTrace()

@@ -1,11 +1,23 @@
 package com.example.app.base
 
 import com.example.app.utils.LogUtils
+import jakarta.persistence.Table
 import org.springframework.context.ApplicationContext
 
 
 abstract class Base {
     abstract fun context(): ApplicationContext
+
+    fun <T> tableName(entity: Class<T>, isNative: Boolean = true): String {
+        try {
+            if (!isNative) return entity.simpleName
+            return entity.getAnnotation(Table::class.java).name
+        }
+        catch (e: Exception) {
+            logError(e, entity)
+            return ""
+        }
+    }
 
 
     // By using reified, Kotlin handles the type casting under the hood, perfectly matching the return type.

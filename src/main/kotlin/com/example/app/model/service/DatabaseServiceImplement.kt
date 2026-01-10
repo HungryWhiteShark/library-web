@@ -120,8 +120,9 @@ class DatabaseServiceImplement: DatabaseService, BaseService() {
         }
     }
 
+
     @Transactional
-    fun<T> delete(entity: T): T? {
+    override fun<T> delete(entity: T): T? {
         return try {
             if (entityManager.contains(entity)) entityManager.remove(entity)
             else entityManager.remove(entityManager.merge(entity))
@@ -132,6 +133,7 @@ class DatabaseServiceImplement: DatabaseService, BaseService() {
             null
         }
     }
+
 
     override fun <T> exists(sql: String, params: ArrayList<Any>, paramList: HashMap<String, ArrayList<T>>,
         pageable: PageRequest?): Boolean {
@@ -187,17 +189,16 @@ class DatabaseServiceImplement: DatabaseService, BaseService() {
     }
 
 
-    override fun <T> tableName(entityDb: Class<T>, isNative: Boolean): String? {
-        try {
-            if (!isNative) return entityDb.simpleName
-            return entityDb.getAnnotation(Table::class.java).name
-
-        }
-        catch (e: Exception) {
-            logError(e)
-            return null
-        }
-    }
-
-
+//    override fun <T> tableName(entityDb: Class<T>, isNative: Boolean): String {
+//        try {
+//            if (!isNative) return entityDb.simpleName
+//            return entityDb.getAnnotation(Table::class.java).name
+//
+//        }
+//        catch (e: Exception) {
+//            logError(e)
+//            return ""
+//        }
+//    }
 }
+

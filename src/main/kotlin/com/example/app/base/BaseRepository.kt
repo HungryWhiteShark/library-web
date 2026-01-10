@@ -1,6 +1,6 @@
 package com.example.app.base
 
-import com.example.app.ApplicationContextProvider
+import com.example.app.base.ApplicationContextProvider
 import org.springframework.context.ApplicationContext
 
 
