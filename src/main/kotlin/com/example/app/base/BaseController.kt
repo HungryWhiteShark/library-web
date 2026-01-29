@@ -102,8 +102,14 @@ open class BaseController: ResponseEntityExceptionHandler() {
 
 
     fun userIdRequest(): String {
-        val token = jwtUtil.getAllClaimsFromToken(loadHeader("token"))?: return "0"
-        return token["userId"].toString()
+        val token = loadHeader("token")?.let {
+            if (it.isEmpty()) {
+                autoWired(LogUtils::class.java).logError("token error")
+                null
+            }
+            else jwtUtil.getAllClaims(it)
+        }
+        return token?.get("userId").toString()
     }
 
 

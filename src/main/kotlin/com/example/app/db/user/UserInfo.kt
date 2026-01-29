@@ -1,26 +1,48 @@
 package com.example.app.db.user
 
-import jakarta.persistence.Entity
-import jakarta.persistence.Id
-import jakarta.persistence.Table
+import jakarta.persistence.*
+import java.io.Serializable
+import java.time.LocalDateTime
+
 
 
 @Entity
-@Table(name = "user_info")
-class UserInfo {
+@Table(name = "")
+data class UserInfo (
     @Id
-    var citizenId = ""
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    var citizenId: String = "",
 
-    var userName = ""
-    var password = ""
-    var fullName = ""
-    var email = ""
-    var age = 0
-    var gender = true
+    @Column(columnDefinition = "varchar(255)", nullable = false)
+    var password: String = "",
 
-    var dateCreated = ""
-    var dateUpdated = ""
-    var role = 0
-    var phoneNumber = ""
-    var address = ""
+    @Column(columnDefinition = "nvarchar(64)", nullable = false)
+    var fullName: String = "",
+
+    @Column(columnDefinition = "varchar(255)", nullable = false)
+    var email: String = "",
+
+    @Column(columnDefinition = "int", nullable = true)
+    var age: Int? = 0,
+
+    @Column(columnDefinition = "boolean", nullable = false)
+    var gender: Boolean = true,
+
+    @Column(columnDefinition = "varchar(20)", nullable = true)
+    var phoneNumber: String? = "",
+
+    @Column(columnDefinition = "bit", nullable = false)
+    var role: Int = 0,
+
+    @Column(columnDefinition = "timestamp", nullable = true)
+    var dateCreated: LocalDateTime = LocalDateTime.now(),
+
+    @Column(columnDefinition = "timestamp")
+    var dateUpdated: LocalDateTime = LocalDateTime.now()
+
+): Serializable {
+    companion object {
+        val TABLE = "user_info"
+
+    }
 }

@@ -21,8 +21,7 @@ class UserModel(ctl: BaseController?): BaseModel(ctl) {
 
 
     fun addUserInfo(info: UserInfo): String {
-        if (getListUser(info.userName, "userName").isNotEmpty()) return "userName"
-        else if (getListUser(info.email, "email").isNotEmpty()) return "email"
+        if (getListUser(info.email, "email").isNotEmpty()) return "email"
         else if (getListUser(info.citizenId, "citizenId").isNotEmpty()) return "citizenId"
         else {
             UserInfoRepo(this).addUserInfo(info)
@@ -32,8 +31,7 @@ class UserModel(ctl: BaseController?): BaseModel(ctl) {
 
 
     fun updateUserInfo(oldUserInfo: UserInfo, newUserInfo: UserInfo): String {
-        if (getListUser(newUserInfo.userName, "userName").isNotEmpty()) return "userName"
-        else if (getListUser(newUserInfo.email, "email").isNotEmpty()) return "email"
+        if (getListUser(newUserInfo.email, "email").isNotEmpty()) return "email"
         else if (getListUser(newUserInfo.citizenId, "citizenId").isNotEmpty()) return "citizenId"
         else {
             UserInfoRepo(this).updateUserInfo(oldUserInfo, newUserInfo)
