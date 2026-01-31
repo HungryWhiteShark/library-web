@@ -3,6 +3,8 @@ package com.example.app.base
 import org.springframework.beans.factory.getBean
 import org.springframework.context.ApplicationContext
 
+
+
 object ApplicationContextProvider {
     lateinit var applicationContext: ApplicationContext
 

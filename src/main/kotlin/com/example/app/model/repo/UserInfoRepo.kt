@@ -9,7 +9,7 @@ import com.example.app.model.service.DatabaseService
 class UserInfoRepo(base: Any? = null): BaseRepository(base) {
     val db = autoWired(DatabaseService::class.java)
 
-    fun getUserInfo(search: String?, searchField : String?): List<UserInfo> {
+    fun getUserInfo(search: Any?, searchField : String?): List<UserInfo> {
         val param = ArrayList<Any>()
         val sql = buildString {
             append(" select * from ${tableName(UserInfo::class.java)} ")

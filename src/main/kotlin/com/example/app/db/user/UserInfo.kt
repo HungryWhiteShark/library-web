@@ -7,10 +7,18 @@ import java.time.LocalDateTime
 
 
 @Entity
-@Table(name = "")
+@Table(
+    name = UserInfo.TABLE,
+    indexes = [
+        Index(name = "idx_${UserInfo.TABLE}_userId", columnList = "userId")
+    ]
+)
 data class UserInfo (
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    var userId: Long = 0L,
+
+    @Column(columnDefinition = "varchar(255)", nullable = false)
     var citizenId: String = "",
 
     @Column(columnDefinition = "varchar(255)", nullable = false)
@@ -22,8 +30,8 @@ data class UserInfo (
     @Column(columnDefinition = "varchar(255)", nullable = false)
     var email: String = "",
 
-    @Column(columnDefinition = "int", nullable = true)
-    var age: Int? = 0,
+    @Column(columnDefinition = "int")
+    var age: Int = 0,
 
     @Column(columnDefinition = "boolean", nullable = false)
     var gender: Boolean = true,
@@ -31,7 +39,7 @@ data class UserInfo (
     @Column(columnDefinition = "varchar(20)", nullable = true)
     var phoneNumber: String? = "",
 
-    @Column(columnDefinition = "bit", nullable = false)
+    @Column(columnDefinition = "int")
     var role: Int = 0,
 
     @Column(columnDefinition = "timestamp", nullable = true)
@@ -42,7 +50,6 @@ data class UserInfo (
 
 ): Serializable {
     companion object {
-        val TABLE = "user_info"
-
+        const val TABLE = "user_info"
     }
 }

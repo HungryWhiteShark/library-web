@@ -1,8 +1,6 @@
 package com.example.app.base
 
-import com.example.app.base.ApplicationContextProvider
 import org.springframework.context.ApplicationContext
-
 
 
 open class BaseRepository(base: Any?): Base() {

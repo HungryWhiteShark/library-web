@@ -1,51 +1,113 @@
 package com.example.app.model.user
 
-import com.example.app.base.BaseController
 import com.example.app.base.BaseModel
 import com.example.app.db.user.UserInfo
+import com.example.app.model.dto.UserInfoDTO
 import com.example.app.model.enum.Role
 import com.example.app.model.repo.UserInfoRepo
-import org.springframework.context.ApplicationContext
+import com.example.app.model.service.Result
 
 
 
-class UserModel(ctl: BaseController?): BaseModel(ctl) {
+class UserModel(base: Any): BaseModel(base) {
+    private val userInfoRepo = UserInfoRepo(this)
 
-    constructor(context: ApplicationContext): this(null) {
-        this.context = context
-    }
-
-
-    fun getListUser(search: String?, searchField: String?): List<UserInfo> =
-        UserInfoRepo(this).getUserInfo(search, searchField)
-
-
-    fun addUserInfo(info: UserInfo): String {
-        if (getListUser(info.email, "email").isNotEmpty()) return "email"
-        else if (getListUser(info.citizenId, "citizenId").isNotEmpty()) return "citizenId"
-        else {
-            UserInfoRepo(this).addUserInfo(info)
-            return ""
+    fun getListUser(search: String?, searchField: String?): Result {
+        return try {
+            val res = userInfoRepo.getUserInfo(search, searchField)
+            if (res.isNotEmpty()) {
+                return Result("", 100, res)
+            }
+            logInfo("list-user-not-found")
+            Result("list-user-not-found", 101)
+        }
+        catch (e: Exception) {
+            logError(e)
+            Result(e.message.toString(), 101)
         }
     }
 
 
-    fun updateUserInfo(oldUserInfo: UserInfo, newUserInfo: UserInfo): String {
-        if (getListUser(newUserInfo.email, "email").isNotEmpty()) return "email"
-        else if (getListUser(newUserInfo.citizenId, "citizenId").isNotEmpty()) return "citizenId"
-        else {
-            UserInfoRepo(this).updateUserInfo(oldUserInfo, newUserInfo)
-            return ""
+    fun addUserInfo(req: UserInfoDTO): Result {
+        try {
+            return if (userInfoRepo.getUserInfo(req.citizenId, "citizenId").isNotEmpty())
+                Result("citizenId-already-existed", 101)
+            else if (userInfoRepo.getUserInfo(req.email, "email").isNotEmpty())
+                Result("email-already-existed", 101)
+            else {
+                val new = UserInfo(
+                    email = req.email,
+                    password = req.password,
+                    citizenId = req.citizenId,
+                    age = req.age,
+                    fullName = req.fullName,
+                    phoneNumber = req.phoneNumber,
+                    gender = req.gender
+                )
+                Result("", 100, userInfoRepo.addUserInfo(new))
+            }
         }
-
+        catch (e: Exception) {
+            logError(e)
+            return Result(e.message.toString(), 101)
+        }
     }
 
 
-    fun deleteUserInfo(info: UserInfo): UserInfo? {
-        if (getListUser(info.citizenId, "citizenId").isNotEmpty() &&
-            info.role == Role.USER.key)
-            return UserInfoRepo(this).deleteUserInfo(info)
-        return null
+    fun deleteUserInfo(id: Long): Result {
+        return try {
+            userInfoRepo.getUserInfo(id, "userId").firstOrNull().let {
+                if (it != null)
+                    return Result("", 100, userInfoRepo.deleteUserInfo(it))
+            }
+            logInfo("user-info-not-found")
+            Result("user-info-not-found", 101)
+        }
+        catch (e: Exception) {
+            logError(e)
+            Result(e.message.toString(), 101)
+        }
+    }
+
+
+    fun updateUserInfo(id: Long, req: UserInfoDTO): Result {
+        return try {
+            userInfoRepo.getUserInfo(id, "userId").firstOrNull().let {
+                if (it != null) {
+                    it.email = req.email
+                    it.citizenId = req.citizenId
+                    it.age = req.age
+                    it.fullName = req.fullName
+                    it.phoneNumber = req.phoneNumber
+                    it.gender = req.gender
+                    return Result("", 100, userInfoRepo.addUserInfo(it))
+                }
+            }
+            logInfo("user-info-not-found")
+            Result("user-info-not-found", 101)
+        }
+        catch (e: Exception) {
+            logError(e)
+            Result(e.message.toString(), 101)
+        }
+    }
+
+
+    fun updatePassword(id: Long, oldPassword: String, newPassword: String): Result {
+        return try {
+            userInfoRepo.getUserInfo(id, "userId").firstOrNull().let {
+                if (it != null && it.password == oldPassword) {
+                    it.password = newPassword
+                    return Result("", 100, userInfoRepo.addUserInfo(it))
+                }
+            }
+            logInfo("user-info-not-found")
+            Result("user-info-not-found", 101)
+        }
+        catch (e: Exception) {
+            logError(e)
+            Result(e.message.toString(), 101)
+        }
     }
 
 }
