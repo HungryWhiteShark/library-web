@@ -189,6 +189,9 @@ class DatabaseServiceImplement: DatabaseService, BaseService() {
     }
 
 
+
+
+
 //    override fun <T> tableName(entityDb: Class<T>, isNative: Boolean): String {
 //        try {
 //            if (!isNative) return entityDb.simpleName

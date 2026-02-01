@@ -9,26 +9,27 @@ import com.example.app.model.service.DatabaseService
 class UserInfoRepo(base: Any? = null): BaseRepository(base) {
     val db = autoWired(DatabaseService::class.java)
 
-    fun getUserInfo(search: Any?, searchField : String?): List<UserInfo> {
+    fun getUserInfo(search: Any? = "", searchField : String = "", offset: Int = 0, limit: Int = 5): List<UserInfo> {
         val param = ArrayList<Any>()
         val sql = buildString {
-            append(" select * from ${tableName(UserInfo::class.java)} ")
+            append(" select * from ${UserInfo.TABLE} ")
             search?.let {
-                append(" where $searchField = '$search' ")
+                append(" where ?${param.size} = ")
+                param.add(searchField)
+                append(" ?${param.size} ")
+                param.add(search)
+
                 append(" union ")
-                append(" select * from ${tableName(UserInfo::class.java)} ")
-                append(" where $searchField like '%$search%' ")
+                append(" select * from ${UserInfo.TABLE} ")
+                append(" where ?${param.size} like ")
+                param.add(searchField)
+                append(" N'%' + ?${param.size} + '%' ")
+                param.add(search)
             }
             append(" order by dateUpdated desc ")
+            append(" offset $offset rows fetch next $limit rows only ")
         }
-
         return db.loadList(sql, UserInfo::class.java, param)
-    }
-
-
-    fun updateUserInfo(oldUserInfo: UserInfo, newUserInfo: UserInfo): UserInfo? {
-        db.delete(oldUserInfo)
-        return db.save(newUserInfo)
     }
 
 

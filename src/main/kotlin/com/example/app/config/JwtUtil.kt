@@ -13,7 +13,6 @@ import java.util.Date
 
 
 
-
 @ConfigurationProperties("jwt")
 data class JwtProperties(
     val key: String,
@@ -28,16 +27,6 @@ class JwtUtil(): BaseService() {
 
     private val secretKey = Keys.hmacShaKeyFor(jwtProperties.key.toByteArray())
 
-    fun generateAccessToken(userDetail: UserDetails, jwtProperties: JwtProperties): String {
-        return buildToken(HashMap(), userDetail, jwtProperties.accessTokenExpiration)
-    }
-
-
-    private fun generateRefreshToken(userDetail: UserDetails, jwtProperties: JwtProperties): String {
-        return buildToken(HashMap(), userDetail, jwtProperties.refreshTokenExpiration)
-    }
-
-
     fun extractEmail(token: String): String? = getAllClaims(token).subject
 
 
@@ -47,14 +36,12 @@ class JwtUtil(): BaseService() {
     }
 
 
-
     fun buildToken(extraClaims: Map<String, Any>, userDetail: UserDetails, expire: Long): String {
         return Jwts.builder()
             .claims(extraClaims)
             .subject(userDetail.username)
             .issuedAt(Date(System.currentTimeMillis()))
             .expiration(Date(System.currentTimeMillis() + expire))
-
             .signWith( secretKey)
             .compact()
     }

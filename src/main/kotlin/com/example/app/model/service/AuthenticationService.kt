@@ -1,0 +1,50 @@
+package com.example.app.model.service
+
+import com.example.app.config.JwtProperties
+import com.example.app.config.JwtUtil
+import com.example.app.model.dto.AuthenticationRequest
+import com.example.app.model.dto.AuthenticationResponse
+import com.example.app.model.model.RefreshTokenModel
+import jakarta.servlet.http.HttpServletRequest
+import org.springframework.security.authentication.AuthenticationManager
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.userdetails.UserDetails
+import org.springframework.stereotype.Service
+
+
+
+@Service
+class AuthenticationService(
+    private val authManager: AuthenticationManager
+    , private val userDetailService: CustomUserDetailService
+    , private val jwtUtil: JwtUtil
+    , private val refreshTokenModel: RefreshTokenModel
+    , private val jwtProperties: JwtProperties) {
+
+    fun generateAccessToken(userDetail: UserDetails): String {
+        return jwtUtil.buildToken(HashMap(), userDetail, jwtProperties.accessTokenExpiration)
+    }
+
+
+    fun generateRefreshToken(userDetail: UserDetails): String {
+        return jwtUtil.buildToken(HashMap(), userDetail, jwtProperties.refreshTokenExpiration)
+    }
+
+
+    fun authentication(authRequest: AuthenticationRequest, req: HttpServletRequest): AuthenticationResponse {
+        authManager.authenticate(UsernamePasswordAuthenticationToken(
+            authRequest.email, authRequest.password
+        ))
+
+        val user = userDetailService.loadUserByUsername(authRequest.email)
+        val accessToken = generateAccessToken(user)
+        val refreshToken = generateRefreshToken(user)
+        val userAgent = req.getHeader("User-Agent") ?: "Unknown"
+        val deviceInfo = DeviceInfoService().getDeviceInfo(userAgent)
+
+        refreshTokenModel.addRefreshToken(authRequest.email, deviceInfo.message)
+
+        return AuthenticationResponse(accessToken, refreshToken)
+    }
+
+}

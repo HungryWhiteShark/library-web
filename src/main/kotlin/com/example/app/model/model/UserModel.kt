@@ -1,9 +1,8 @@
-package com.example.app.model.user
+package com.example.app.model.model
 
 import com.example.app.base.BaseModel
 import com.example.app.db.user.UserInfo
 import com.example.app.model.dto.UserInfoDTO
-import com.example.app.model.enum.Role
 import com.example.app.model.repo.UserInfoRepo
 import com.example.app.model.service.Result
 
@@ -12,7 +11,7 @@ import com.example.app.model.service.Result
 class UserModel(base: Any): BaseModel(base) {
     private val userInfoRepo = UserInfoRepo(this)
 
-    fun getListUser(search: String?, searchField: String?): Result {
+    fun getListUser(search: String, searchField: String): Result {
         return try {
             val res = userInfoRepo.getUserInfo(search, searchField)
             if (res.isNotEmpty()) {

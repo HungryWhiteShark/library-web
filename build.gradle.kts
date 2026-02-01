@@ -36,6 +36,7 @@ dependencies {
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 	implementation("org.springframework.security:spring-security-config:6.5.7")
 	implementation("org.springframework.boot:spring-boot-starter-security")
+	implementation("nl.basjes.parse.useragent:yauaa:7.28.1") // get device_info for refresh token
 }
 
 kotlin {

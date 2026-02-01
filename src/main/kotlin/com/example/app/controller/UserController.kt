@@ -2,7 +2,7 @@ package com.example.app.controller
 
 import com.example.app.base.BaseController
 import com.example.app.model.dto.UserInfoDTO
-import com.example.app.model.user.UserModel
+import com.example.app.model.model.UserModel
 import com.example.app.utils.LogUtils
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
