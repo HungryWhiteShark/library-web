@@ -1,10 +1,11 @@
 package com.example.app.model.model
 
 import com.example.app.base.BaseModel
-import com.example.app.db.user.UserInfo
+import com.example.app.db.UserInfo
 import com.example.app.model.dto.UserInfoDTO
 import com.example.app.model.repo.UserInfoRepo
 import com.example.app.model.service.Result
+import com.example.app.model.service.SecurityConfig
 
 
 
@@ -34,9 +35,10 @@ class UserModel(base: Any): BaseModel(base) {
             else if (userInfoRepo.getUserInfo(req.email, "email").isNotEmpty())
                 Result("email-already-existed", 101)
             else {
+                val hashedPassword = autoWired(SecurityConfig::class.java).encoder().encode(req.password)
                 val new = UserInfo(
                     email = req.email,
-                    password = req.password,
+                    password = hashedPassword!!,
                     citizenId = req.citizenId,
                     age = req.age,
                     fullName = req.fullName,

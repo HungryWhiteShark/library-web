@@ -5,6 +5,7 @@ import nl.basjes.parse.useragent.UserAgentAnalyzer
 import org.springframework.stereotype.Service
 
 
+
 @Service
 class DeviceInfoService: BaseService() {
     private val uaa = UserAgentAnalyzer.newBuilder().hideMatcherLoadStats().build()
@@ -14,8 +15,8 @@ class DeviceInfoService: BaseService() {
             val agent = uaa.parse(userAgent)
             val os = agent.getValue("OperatingSystemNameVersion")
             val browser = agent.getValue("AgentNameVersion")
+            logInfo("$browser on $os")
             Result("$browser on $os", 100)
-
         }
         catch (e: Exception) {
             logError(e.message.toString())

@@ -5,7 +5,6 @@ import com.example.app.config.JwtUtil
 import com.example.app.model.dto.AuthenticationRequest
 import com.example.app.model.dto.AuthenticationResponse
 import com.example.app.model.model.RefreshTokenModel
-import jakarta.servlet.http.HttpServletRequest
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.userdetails.UserDetails
@@ -31,7 +30,8 @@ class AuthenticationService(
     }
 
 
-    fun authentication(authRequest: AuthenticationRequest, req: HttpServletRequest): AuthenticationResponse {
+    fun authentication(authRequest: AuthenticationRequest,
+                       userAgent: String, ipAddress: String): AuthenticationResponse {
         authManager.authenticate(UsernamePasswordAuthenticationToken(
             authRequest.email, authRequest.password
         ))
@@ -39,10 +39,9 @@ class AuthenticationService(
         val user = userDetailService.loadUserByUsername(authRequest.email)
         val accessToken = generateAccessToken(user)
         val refreshToken = generateRefreshToken(user)
-        val userAgent = req.getHeader("User-Agent") ?: "Unknown"
         val deviceInfo = DeviceInfoService().getDeviceInfo(userAgent)
 
-        refreshTokenModel.addRefreshToken(authRequest.email, deviceInfo.message)
+        refreshTokenModel.addRefreshToken(authRequest.email, deviceInfo.message, ipAddress)
 
         return AuthenticationResponse(accessToken, refreshToken)
     }

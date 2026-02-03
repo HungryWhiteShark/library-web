@@ -7,6 +7,7 @@ import org.springframework.web.filter.OncePerRequestFilter
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 
 
@@ -26,7 +27,13 @@ class JwtAuthenticationFilter(
         val userEmail = jwtUtil.extractEmail(jwt)
 
         if (userEmail != null && SecurityContextHolder.getContext().authentication == null) {
-            val userDetail = userDetailService
+            val userDetail = userDetailService.loadUserByUsername(userEmail)
+            if (jwtUtil.isTokenValid(jwt, userEmail)) {
+                val authToken = UsernamePasswordAuthenticationToken(userDetail, null,
+                    userDetail.authorities)
+
+                SecurityContextHolder.getContext().authentication = authToken
+            }
         }
 
         filterChain.doFilter(request, response)

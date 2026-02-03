@@ -1,7 +1,7 @@
 package com.example.app.model.repo
 
 import com.example.app.base.BaseRepository
-import com.example.app.db.user.UserInfo
+import com.example.app.db.UserInfo
 import com.example.app.model.service.DatabaseService
 
 

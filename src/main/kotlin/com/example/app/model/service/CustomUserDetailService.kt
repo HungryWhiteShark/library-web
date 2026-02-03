@@ -1,6 +1,6 @@
 package com.example.app.model.service
 
-import com.example.app.db.user.UserInfo
+import com.example.app.db.UserInfo
 import com.example.app.model.repo.UserInfoRepo
 import org.springframework.security.core.userdetails.User
 import org.springframework.security.core.userdetails.UserDetails

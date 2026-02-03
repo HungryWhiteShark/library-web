@@ -1,8 +1,13 @@
-package com.example.app.db.refreshtoken
+package com.example.app.db
 
-import jakarta.persistence.*
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
+import jakarta.persistence.Index
+import jakarta.persistence.Table
 import java.io.Serializable
-
 
 @Entity
 @Table(
@@ -10,7 +15,6 @@ import java.io.Serializable
     indexes = [
         Index(name = "idx_${RefreshToken.TABLE}_id", columnList = "tokenId")
     ]
-
 )
 data class RefreshToken(
     @Id
@@ -34,6 +38,6 @@ data class RefreshToken(
 
 ): Serializable {
     companion object {
-        const val TABLE = "refresh_token"
+        const val TABLE = "user_refresh_token"
     }
 }

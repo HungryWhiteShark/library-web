@@ -9,6 +9,7 @@ import io.jsonwebtoken.security.Keys
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Service
+import java.time.LocalDateTime
 import java.util.Date
 
 
@@ -65,10 +66,16 @@ class JwtUtil(): BaseService() {
     }
 
 
-    class TokenBody {
-        var userId = ""
-        var name = ""
-        var refreshExp = 0L
+    fun isTokenValid(token: String, userEmail: String): Boolean {
+        val email = getAllClaims(token).subject
+        return userEmail == email && !isTokenExpired(token)
     }
+
+
+//    class TokenBody {
+//        var userId = ""
+//        var name = ""
+//        var refreshExp = 0L
+//    }
 
 }
