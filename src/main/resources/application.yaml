@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: library-web
+  datasource:
+    url: "jdbc:postgres://localhost:5432/d_library"
+    username: "postgres"
+    password: ${POSTGRES_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
