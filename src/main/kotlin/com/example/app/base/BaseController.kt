@@ -21,8 +21,7 @@ import java.util.ResourceBundle
 
 @CrossOrigin(value = ["*"])
 open class BaseController: ResponseEntityExceptionHandler() {
-    @Autowired
-    lateinit var logUtils: LogUtils
+    var logUtil = autoWired(LogUtils::class.java)
 
     @Autowired
     lateinit var context: ApplicationContext
@@ -156,14 +155,14 @@ open class BaseController: ResponseEntityExceptionHandler() {
                 if (folder) {
                     for (item in file.listFiles()!!) {
                         if (!item.delete())
-                            logUtils.logInfo("Cannot delete file: ${file.absolutePath}")
+                            logUtil.logInfo("Cannot delete file: ${file.absolutePath}")
                     }
                 }
                 inputStream?.close()
-                logUtils.logInfo("Delete file: ${file.delete()}")
+                logUtil.logInfo("Delete file: ${file.delete()}")
             }
             catch (e: Exception) {
-                logUtils.logError(e, this)
+                logUtil.logError(e, this)
             }
         }
     }

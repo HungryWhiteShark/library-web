@@ -27,7 +27,7 @@ class UserInfoRepo(base: Any? = null): BaseRepository(base) {
                 param.add(search)
             }
             append(" order by dateUpdated desc ")
-            append(" offset $offset rows fetch next $limit rows only ")
+            append(" limit $limit offset $offset ")
         }
         return db.loadList(sql, UserInfo::class.java, param)
     }

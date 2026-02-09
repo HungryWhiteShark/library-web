@@ -3,6 +3,8 @@ package com.example.app.model.service
 import com.example.app.utils.JwtAuthenticationFilter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.security.authentication.AuthenticationManager
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
@@ -19,7 +21,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 @Configuration
 @EnableWebSecurity
 class SecurityConfig(private val jwtAuthenticationFilter: JwtAuthenticationFilter) {
-
     @Bean
     fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http.sessionManagement { session ->
@@ -28,16 +29,12 @@ class SecurityConfig(private val jwtAuthenticationFilter: JwtAuthenticationFilte
             .cors { it.configurationSource(corsConfig()) }
             .csrf { it.disable() }
             .authorizeHttpRequests { auth ->
-                auth.requestMatchers("api/auth/**").permitAll()
+                auth.requestMatchers("/api/auth/**").permitAll()
                 auth.anyRequest().authenticated()
             }
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
         return http.build()
     }
-
-
-    @Bean
-    fun encoder(): PasswordEncoder = BCryptPasswordEncoder(12)
 
 
     @Bean

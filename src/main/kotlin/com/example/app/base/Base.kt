@@ -8,7 +8,7 @@ import org.springframework.context.ApplicationContext
 abstract class Base {
     abstract fun context(): ApplicationContext
 
-    fun <T> tableName(entity: Class<T>, isNative: Boolean = true): String {
+    open fun <T> tableName(entity: Class<T>, isNative: Boolean = true): String {
         try {
             if (!isNative) return entity.simpleName
             return entity.getAnnotation(Table::class.java).name
@@ -55,17 +55,17 @@ abstract class Base {
     }
 
 
-    fun logError(api: Any, clazz: Any?=null) {
+    open fun logError(api: Any, clazz: Any?=null) {
         autoWired(LogUtils::class.java).logError(api, clazz)
     }
 
 
-    fun logError(e: Exception, clazz: Any? = null) {
+    open fun logError(e: Exception, clazz: Any? = null) {
         autoWired(LogUtils::class.java).logError(e, clazz)
     }
 
 
-    fun logInfo(info: Any, clazz: Any?=null) {
+    open fun logInfo(info: Any, clazz: Any?=null) {
         autoWired(LogUtils::class.java).logInfo(info, clazz)
     }
 

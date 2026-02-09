@@ -4,6 +4,7 @@ plugins {
 	id("org.springframework.boot") version "4.0.1"
 	id("io.spring.dependency-management") version "1.1.7"
 	kotlin("plugin.jpa") version "2.2.21"
+	kotlin("plugin.allopen") version "1.9.21"
 }
 
 group = "com.example"
@@ -23,6 +24,9 @@ repositories {
 dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-webmvc")
+	implementation("org.springframework.boot:spring-boot-starter-web")
+	implementation("org.springframework.boot:spring-boot-starter-log4j2")
+	// implementation("org.apache.logging.log4j:log4j-jcl")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("tools.jackson.module:jackson-module-kotlin")
 
@@ -34,10 +38,16 @@ dependencies {
 	testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-	implementation("org.springframework.security:spring-security-config:6.5.7")
+	implementation("org.springframework.security:spring-security-config")
 	implementation("org.springframework.boot:spring-boot-starter-security")
 	implementation("nl.basjes.parse.useragent:yauaa:7.28.1") // get device_info for refresh token
 }
+
+configurations.all {
+	exclude(group = "org.springframework.boot", module = "spring-boot-starter-logging")
+	exclude(group = "org.apache.logging.log4j", module = "log4j-to-slf4j")
+}
+
 
 kotlin {
 	compilerOptions {

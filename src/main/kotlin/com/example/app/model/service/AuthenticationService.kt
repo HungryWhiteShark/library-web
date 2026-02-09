@@ -17,16 +17,15 @@ class AuthenticationService(
     private val authManager: AuthenticationManager
     , private val userDetailService: CustomUserDetailService
     , private val jwtUtil: JwtUtil
-    , private val refreshTokenModel: RefreshTokenModel
     , private val jwtProperties: JwtProperties) {
 
     fun generateAccessToken(userDetail: UserDetails): String {
-        return jwtUtil.buildToken(HashMap(), userDetail, jwtProperties.accessTokenExpiration)
+        return jwtUtil.buildToken(HashMap(), userDetail, jwtProperties.accessTokenExpiration.toMillis())
     }
 
 
     fun generateRefreshToken(userDetail: UserDetails): String {
-        return jwtUtil.buildToken(HashMap(), userDetail, jwtProperties.refreshTokenExpiration)
+        return jwtUtil.buildToken(HashMap(), userDetail, jwtProperties.refreshTokenExpiration.toMillis())
     }
 
 
@@ -41,7 +40,7 @@ class AuthenticationService(
         val refreshToken = generateRefreshToken(user)
         val deviceInfo = DeviceInfoService().getDeviceInfo(userAgent)
 
-        refreshTokenModel.addRefreshToken(authRequest.email, deviceInfo.message, ipAddress)
+        RefreshTokenModel(this).addRefreshToken(authRequest.email, deviceInfo.message, ipAddress)
 
         return AuthenticationResponse(accessToken, refreshToken)
     }

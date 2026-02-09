@@ -1,13 +1,7 @@
 package com.example.app.model.model
 
 import com.example.app.base.BaseModel
-import com.example.app.config.JwtProperties
-import com.example.app.config.JwtUtil
-import com.example.app.db.RefreshToken
 import com.example.app.model.repo.RefreshTokenRepo
-import com.example.app.model.service.CustomUserDetailService
-import com.example.app.model.service.DeviceInfoService
-import jakarta.servlet.http.HttpServletRequest
 import com.example.app.model.service.Result
 
 

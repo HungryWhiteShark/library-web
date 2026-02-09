@@ -38,7 +38,7 @@ class LoginController(private val authService: AuthenticationService): BaseContr
 
         }
         catch (e: Exception) {
-            logUtils.logError(e.message.toString())
+            logUtil.logError(e.message.toString())
             response(102, "login-error")
         }
     }

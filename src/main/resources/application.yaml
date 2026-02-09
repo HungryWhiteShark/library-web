@@ -2,8 +2,12 @@ spring:
   application:
     name: library-web
   datasource:
-    url: "jdbc:postgres://localhost:5432/d_library"
-    username: "postgres"
+    url: "jdbc:postgresql://localhost:5432/d_library"
+    username: lib01
     password: ${POSTGRES_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
+jwt:
+  key: ${JWT_KEY}
+  access-token-expiration: 15m
+  refresh-token-expiration: 15d

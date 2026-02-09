@@ -22,8 +22,8 @@ enum class LogType(val typeName: String) {
 }
 
 
-class LogUtils(var serviceName: String) {
-    private val  errorLog = LogFactory.getLog("error")
+class LogUtils(var serviceName: String = "") {
+    private val errorLog = LogFactory.getLog("error")
     private val mapper = ObjectMapper()
     private val poolLogger = ThreadPoolExecutor(
         4,4,0L, TimeUnit.MILLISECONDS,

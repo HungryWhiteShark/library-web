@@ -6,25 +6,16 @@ import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.ExpiredJwtException
 import io.jsonwebtoken.security.Keys
-import org.springframework.boot.context.properties.ConfigurationProperties
+import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Service
-import java.time.LocalDateTime
 import java.util.Date
 
 
 
-@ConfigurationProperties("jwt")
-data class JwtProperties(
-    val key: String,
-    val accessTokenExpiration: Long = 1000 * 60 * 15,
-    val refreshTokenExpiration: Long = 1000 * 60 * 60 * 24 * 15
-)
-
-
 @Service
-class JwtUtil(): BaseService() {
-    val jwtProperties = autoWired(JwtProperties::class.java)
+@EnableConfigurationProperties(JwtProperties::class)
+class JwtUtil(jwtProperties: JwtProperties): BaseService() {
 
     private val secretKey = Keys.hmacShaKeyFor(jwtProperties.key.toByteArray())
 
@@ -70,12 +61,4 @@ class JwtUtil(): BaseService() {
         val email = getAllClaims(token).subject
         return userEmail == email && !isTokenExpired(token)
     }
-
-
-//    class TokenBody {
-//        var userId = ""
-//        var name = ""
-//        var refreshExp = 0L
-//    }
-
 }
