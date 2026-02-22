@@ -20,16 +20,16 @@ data class UserInfo (
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var userId: Long = 0L,
 
-    @Column(columnDefinition = "varchar(255)", nullable = false)
+    @Column(columnDefinition = "text", nullable = false)
     var citizenId: String = "",
 
-    @Column(columnDefinition = "varchar(255)", nullable = false)
+    @Column(columnDefinition = "text", nullable = false)
     var password: String = "",
 
-    @Column(columnDefinition = "nvarchar(64)", nullable = false)
+    @Column(columnDefinition = "text", nullable = false)
     var fullName: String = "",
 
-    @Column(columnDefinition = "varchar(255)", nullable = false)
+    @Column(columnDefinition = "text", nullable = false)
     var email: String = "",
 
     @Column(columnDefinition = "int")
@@ -38,11 +38,11 @@ data class UserInfo (
     @Column(columnDefinition = "boolean", nullable = false)
     var gender: Boolean = true,
 
-    @Column(columnDefinition = "varchar(20)", nullable = true)
+    @Column(columnDefinition = "text", nullable = true)
     var phoneNumber: String? = "",
 
     @Column(columnDefinition = "int")
-    var role: Int = 0,
+    var role: Int = 2,
 
     @CreationTimestamp
     var dateCreated: LocalDateTime = LocalDateTime.now(),

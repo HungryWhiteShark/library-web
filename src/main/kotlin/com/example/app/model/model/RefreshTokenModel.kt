@@ -1,27 +1,44 @@
 package com.example.app.model.model
 
-import com.example.app.base.BaseModel
+import com.example.app.db.RefreshToken
+import com.example.app.model.dto.RefreshTokenDTO
 import com.example.app.model.repo.RefreshTokenRepo
+import com.example.app.model.service.DatabaseService
 import com.example.app.model.service.Result
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
+import java.time.Instant
 
 
 
-class RefreshTokenModel(base: Any): BaseModel(base) {
-    private val refreshTokenRepo = RefreshTokenRepo(this)
+class RefreshTokenModel(private val jdbc: NamedParameterJdbcTemplate, private val db: DatabaseService) {
 
+    fun updateRefreshToken(data: RefreshTokenDTO): Result {
+        try {
+            val token = RefreshTokenRepo(jdbc, db).getRefreshToken(data.email, data.deviceInfo).firstOrNull()
 
-    fun addRefreshToken(email: String, deviceInfo: String, ipAddress: String): Result {
-        return try {
-            refreshTokenRepo.getRefreshToken(email, deviceInfo).let {
-                if (it != null) {
-                    return Result("", 100)
-                }
+            if (token != null) {
+                token.tokenValue = data.refreshToken
+                token.ipAddress = data.ipAddress
+                token.expiryDate = data.expiryDate
+                token.revoked = false
+
+                return Result("", 100, RefreshTokenRepo(jdbc, db).addRefreshToken(token))
             }
-            Result("", 100)
+            else {
+                val new = RefreshToken(
+                    tokenValue = data.refreshToken,
+                    ipAddress = data.ipAddress,
+                    expiryDate = Instant.now().toEpochMilli(),
+                    deviceInfo = data.deviceInfo,
+                    email = data.email,
+                    revoked = false
+                )
+                return Result("", 100, RefreshTokenRepo(jdbc, db).addRefreshToken(new))
+            }
         }
         catch (e: Exception) {
-            logError(e)
-            Result(e.message.toString(), 101)
+            return Result("error", 101)
         }
     }
+
 }

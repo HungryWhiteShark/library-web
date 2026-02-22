@@ -1,23 +1,49 @@
 package com.example.app.model.service
 
-import org.springframework.data.domain.PageRequest
+import com.example.app.base.BaseService
+import jakarta.persistence.PersistenceContext
+import jakarta.persistence.EntityManager
+import jakarta.transaction.Transactional
+import org.hibernate.SessionFactory
+import org.springframework.stereotype.Repository
 
-interface DatabaseService {
-    fun<T> isTable(entity: Class<T>): Boolean
-    // fun<T> tableName(entityDb: Class<T>, isNative: Boolean = true): String
-    fun<T> loadList(sql: String, clazzResult: Class<T>, params: ArrayList<Any> = ArrayList(),
-                     paramList: HashMap<String, ArrayList<T>> = hashMapOf(), pageable: PageRequest?=null): List<T>
 
-    fun<T> find(sql: String, clazzResult: Class<T>, params: ArrayList<Any> = ArrayList(),
-                 paramList: HashMap<String, ArrayList<Any>> = hashMapOf()): T?
 
-    fun<T> save(entity: T): T?
+@Repository
+open class DatabaseService: BaseService() {
+    @PersistenceContext
+    private lateinit var entityManager: EntityManager
 
-    fun<T> delete(entity: T): T?
+    @Transactional
+    fun<T> save (entity: T): T? {
+        val session = entityManager.entityManagerFactory.unwrap(SessionFactory::class.java).openSession()
+        return try {
+            session.transaction.begin()
+            val managedEntity = session.merge(entity)
+            session.transaction.commit()
+            managedEntity
+        }
+        catch (e: Exception) {
+            session.transaction.rollback()
+            logError(e)
+            null
+        }
+        finally {
+            session.close()
+        }
+    }
 
-    fun<T> exists(sql: String, params: ArrayList<Any> = ArrayList(), paramList: HashMap<String, ArrayList<T>>
-                  = hashMapOf(), pageable: PageRequest?=null): Boolean
 
-    fun executeToUpdate(sql: String, params: ArrayList<Any> = ArrayList(), paramList: HashMap<String, ArrayList<Any>>
-    = hashMapOf(), isNative: Boolean = true): Int
+    @Transactional
+    fun<T> delete(entity: T): T? {
+        return try {
+            if (entityManager.contains(entity)) entityManager.remove(entity)
+            else entityManager.remove(entityManager.merge(entity))
+            entity
+        }
+        catch (e: Exception) {
+            logError(e)
+            null
+        }
+    }
 }

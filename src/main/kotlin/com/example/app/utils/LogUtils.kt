@@ -23,9 +23,9 @@ enum class LogType(val typeName: String) {
 
 
 class LogUtils(var serviceName: String = "") {
-    private val errorLog = LogFactory.getLog("error")
+    val errorLog: Log = LogFactory.getLog("error")
     private val mapper = ObjectMapper()
-    private val poolLogger = ThreadPoolExecutor(
+    val poolLogger = ThreadPoolExecutor(
         4,4,0L, TimeUnit.MILLISECONDS,
         LinkedBlockingQueue<Runnable>(10000), // queue size = 10k log
         ThreadPoolExecutor.CallerRunsPolicy()
@@ -43,12 +43,14 @@ class LogUtils(var serviceName: String = "") {
     }
 
 
-    fun logError(e: Exception, clazz: Any?=null) {
+    inline fun <reified T> logError(e: Exception) {
         try {
+            val clazz = T::class.java.simpleName
             val errors = StringWriter().also {
                 e.printStackTrace(PrintWriter(it)).toString()
             }
-            errorLog.error("class::${clazz?.javaClass?.simpleName} - $errors")
+
+            errorLog.error("class::${clazz} - $errors")
             val data = LogEntity(serviceName, LogType.ERROR).apply {
                 logTime = System.currentTimeMillis()
                 dataLog = errors

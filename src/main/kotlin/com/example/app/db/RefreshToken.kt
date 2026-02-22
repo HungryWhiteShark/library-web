@@ -17,10 +17,10 @@ data class RefreshToken(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var tokenId: Long = 0L,
 
-    @Column(columnDefinition = "varchar(255)", nullable = false)
+    @Column(columnDefinition = "text", nullable = false)
     var email: String = "",
 
-    @Column(columnDefinition = "varchar(255)", nullable = false)
+    @Column(columnDefinition = "text", nullable = false)
     var tokenValue: String = "",
 
     @Column(columnDefinition = "bigint", nullable = false)
@@ -29,8 +29,11 @@ data class RefreshToken(
     @Column(columnDefinition = "boolean")
     var revoked: Boolean = false,
 
-    @Column(columnDefinition = "varchar(255)", nullable = true)
-    var deviceInfo: String? = ""
+    @Column(columnDefinition = "text", nullable = true)
+    var deviceInfo: String? = "",
+
+    @Column(columnDefinition = "text", nullable = true)
+    var ipAddress: String? = ""
 
 ): Serializable {
     companion object {

@@ -6,11 +6,10 @@ import com.fasterxml.jackson.annotation.Nulls
 import tools.jackson.databind.DeserializationFeature
 import tools.jackson.databind.JsonNode
 import tools.jackson.databind.ObjectMapper
-import tools.jackson.databind.cfg.CoercionAction
-import tools.jackson.databind.cfg.CoercionInputShape
-import tools.jackson.databind.cfg.MutableCoercionConfig
 import tools.jackson.databind.cfg.MutableConfigOverride
 import tools.jackson.databind.json.JsonMapper
+import tools.jackson.module.kotlin.KotlinModule
+
 
 
 fun Any.objectToJson(): String {
@@ -64,4 +63,26 @@ fun <T> JsonNode.toObject(clazz: Class<T>): T? {
         }.build()
     return mapper.treeToValue(this, clazz)
 
+}
+
+
+private val objectMapper = JsonMapper.builder()
+    .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+    .changeDefaultPropertyInclusion { i: JsonInclude.Value? ->
+        i!!.withValueInclusion(JsonInclude.Include.NON_NULL) }
+    .withConfigOverride(String::class.java) {
+        cfg: MutableConfigOverride -> cfg.setNullHandling(JsonSetter.Value.forValueNulls(Nulls.SKIP)) }
+        .addModule(KotlinModule.Builder().build())
+        .build()
+
+
+fun<T> Map<String, *>.toObject(clazz: Class<T>): T? {
+    if (this.isEmpty()) return null
+
+    return try {
+        objectMapper.convertValue(this, clazz)
+    }
+    catch (_: Exception) {
+        null
+    }
 }

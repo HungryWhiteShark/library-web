@@ -46,11 +46,11 @@ class JwtUtil(jwtProperties: JwtProperties): BaseService() {
             }
         }
         catch (exp: ExpiredJwtException) {
-            autoWired(LogUtils::class.java).logError(exp)
+            logError(exp)
             true
         }
         catch (e: Exception) {
-            autoWired(LogUtils::class.java).logError(e)
+            logError(e)
             true
         }
 

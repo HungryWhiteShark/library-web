@@ -1,41 +1,38 @@
 package com.example.app.model.repo
 
-import com.example.app.base.BaseRepository
 import com.example.app.db.UserInfo
 import com.example.app.model.service.DatabaseService
+import jakarta.persistence.EntityManager
+import jakarta.transaction.Transactional
+import org.springframework.jdbc.core.BeanPropertyRowMapper
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
+import org.springframework.stereotype.Repository
 
 
 
-class UserInfoRepo(base: Any? = null): BaseRepository(base) {
-    val db = autoWired(DatabaseService::class.java)
+@Repository
+@Transactional
+class UserInfoRepo(private val jdbc: NamedParameterJdbcTemplate, private val db: DatabaseService) {
 
-    fun getUserInfo(search: Any? = "", searchField : String = "", offset: Int = 0, limit: Int = 5): List<UserInfo> {
-        val param = ArrayList<Any>()
+    fun getUserInfo(email: String, citizenId: String? = null): List<UserInfo> {
+        val params = hashMapOf<String, Any>()
         val sql = buildString {
-            append(" select * from ${UserInfo.TABLE} ")
-            search?.let {
-                append(" where ?${param.size} = ")
-                param.add(searchField)
-                append(" ?${param.size} ")
-                param.add(search)
+            append(" select * from ${UserInfo.TABLE} where email = :email ")
+            params["email"] = email
 
-                append(" union ")
-                append(" select * from ${UserInfo.TABLE} ")
-                append(" where ?${param.size} like ")
-                param.add(searchField)
-                append(" N'%' + ?${param.size} + '%' ")
-                param.add(search)
+            citizenId?.let {
+                append(" and citizen_id = :citizen ")
+                params["citizen"] = citizenId
             }
-            append(" order by dateUpdated desc ")
-            append(" limit $limit offset $offset ")
         }
-        return db.loadList(sql, UserInfo::class.java, param)
+
+        return jdbc.query(
+            sql, params,
+            BeanPropertyRowMapper(UserInfo::class.java)
+        )
     }
 
 
-    fun addUserInfo(info: UserInfo): UserInfo? = db.save(info)
-
-
-    fun deleteUserInfo(info: UserInfo): UserInfo? = db.delete(info)
+    fun addUser(data: UserInfo): UserInfo? = db.save(data)
 
 }

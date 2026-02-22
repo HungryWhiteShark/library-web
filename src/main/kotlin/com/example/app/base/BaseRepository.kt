@@ -5,6 +5,7 @@ import org.springframework.context.ApplicationContext
 
 open class BaseRepository(base: Any?): Base() {
     var context: ApplicationContext
+
     init {
         try {
             if (base == null) context = ApplicationContextProvider.applicationContext
@@ -24,6 +25,6 @@ open class BaseRepository(base: Any?): Base() {
 
 
     override fun context(): ApplicationContext {
-        return context()
+        return this.context
     }
 }
