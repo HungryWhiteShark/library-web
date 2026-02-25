@@ -6,13 +6,13 @@ import com.example.app.model.dto.AuthenticationRequest
 import com.example.app.model.dto.AuthenticationResponse
 import com.example.app.model.dto.RefreshTokenDTO
 import com.example.app.model.model.RefreshTokenModel
-import jakarta.persistence.EntityManager
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Service
 import java.time.Instant
+
 
 
 @Service
@@ -25,12 +25,12 @@ class AuthenticationService(
     , private val db: DatabaseService) {
 
     fun generateAccessToken(userDetail: UserDetails): String {
-        return jwtUtil.buildToken(HashMap(), userDetail, jwtProperties.accessTokenExpiration.toMillis())
+        return jwtUtil.buildToken(hashMapOf(), userDetail, jwtProperties.accessTokenExpiration.toMillis())
     }
 
 
     fun generateRefreshToken(userDetail: UserDetails): String {
-        return jwtUtil.buildToken(HashMap(), userDetail, jwtProperties.refreshTokenExpiration.toMillis())
+        return jwtUtil.buildToken(hashMapOf(), userDetail, jwtProperties.refreshTokenExpiration.toMillis())
     }
 
 

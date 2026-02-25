@@ -1,6 +1,7 @@
 package com.example.app.model.service
 
 import com.example.app.base.BaseService
+import com.example.app.utils.LogUtils
 import nl.basjes.parse.useragent.UserAgentAnalyzer
 import org.springframework.stereotype.Service
 
@@ -15,11 +16,11 @@ class DeviceInfoService: BaseService() {
             val agent = uaa.parse(userAgent)
             val os = agent.getValue("OperatingSystemNameVersion")
             val browser = agent.getValue("AgentNameVersion")
-            logInfo("$browser on $os")
+            LogUtils.logInfo("$browser on $os")
             Result("$browser on $os", 100)
         }
         catch (e: Exception) {
-            logError(e.message.toString())
+            LogUtils.logError(e.message.toString(), e)
             Result(e.message.toString(), 101)
         }
     }

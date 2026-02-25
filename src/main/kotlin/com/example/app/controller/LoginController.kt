@@ -6,6 +6,7 @@ import com.example.app.model.dto.UserInfoDTO
 import com.example.app.model.model.UserModel
 import com.example.app.model.service.AuthenticationService
 import com.example.app.model.service.DatabaseService
+import com.example.app.utils.LogUtils
 import jakarta.servlet.http.Cookie
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -22,8 +23,7 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/auth")
 class LoginController(
     private val authService: AuthenticationService,
-    private val jdbc: NamedParameterJdbcTemplate,
-    private val db: DatabaseService): BaseController() {
+    private val userModel: UserModel): BaseController() {
 
     @PostMapping(value = ["/login"])
     fun login(@RequestBody authRequest: AuthenticationRequest,
@@ -45,7 +45,7 @@ class LoginController(
 
         }
         catch (e: Exception) {
-            logUtil.logError(e.message.toString())
+            LogUtils.logError(e.message.toString())
             response(102, "login-error")
         }
     }
@@ -56,12 +56,12 @@ class LoginController(
         return try {
             req.getHeader("User-Agent") ?: "Unknown"
 
-            val result = UserModel(jdbc, db).registerUser(user, authService)
+            val result = userModel.registerUser(user)
             return if (result.success) responseData(result.data)
                 else response(result.code, result.message)
         }
         catch (e: Exception) {
-            logUtil.logError(e.message.toString())
+            LogUtils.logError(e.message.toString())
             response(500, "system-error")
         }
     }

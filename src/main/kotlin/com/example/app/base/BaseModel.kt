@@ -1,6 +1,7 @@
 package com.example.app.base
 
 
+import com.example.app.utils.LogUtils
 import org.springframework.context.ApplicationContext
 
 
@@ -20,7 +21,7 @@ open class BaseModel(base: Any?): Base() {
 
         }
         catch (e: Exception) {
-            logError(e)
+            LogUtils.logError(e.message.toString(), e)
         }
     }
 

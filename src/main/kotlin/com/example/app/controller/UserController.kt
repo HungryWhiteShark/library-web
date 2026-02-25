@@ -5,6 +5,8 @@ import com.example.app.model.dto.UserInfoDTO
 import com.example.app.model.model.UserModel
 import com.example.app.utils.LogUtils
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -16,69 +18,62 @@ import org.springframework.web.bind.annotation.RequestParam
 
 
 @RestController
-@RequestMapping("/users")
-class UserController: BaseController() {
-//
-//
-//    @GetMapping(value = ["/get_user"])
-//    fun getUserInfo(@RequestParam search: String, @RequestParam searchField: String): ResponseEntity<Any> {
-//        return try {
-//            val result = UserModel(this).getListUser(search, searchField)
-//            return if (result.success)
-//                responseData(result.data)
-//            else response(result.code, result.message)
-//        }
-//        catch (e: Exception) {
-//            autoWired(LogUtils::class.java).logError(e)
-//            response(500, "system-error")
-//        }
-//    }
-//
-//
-//    @PostMapping(value = ["/update_user/{id}"])
-//    fun updateUserInfo(@PathVariable id: Long, @RequestParam req: UserInfoDTO): ResponseEntity<Any> {
-//        return try {
-//            val result = UserModel(this).updateUserInfo(id, req)
-//            return if (result.success)
-//                responseData(result.data)
-//            else response(result.code, result.message)
-//
-//        }
-//        catch (e: Exception) {
-//            autoWired(LogUtils::class.java).logError(e)
-//            response(500, "system-error")
-//        }
-//    }
-//
-//
-//    @DeleteMapping(value = ["/delete_user"])
-//    fun deleteUserInfo(@RequestParam id: Long): ResponseEntity<Any> {
-//        return try {
-//            val result = UserModel(this).deleteUserInfo(id)
-//            return if (result.success)
-//                responseData(result.data)
-//            else response(result.code, result.message)
-//        }
-//        catch (e: Exception) {
-//            autoWired(LogUtils::class.java).logError(e)
-//            response(500, "system-error")
-//        }
-//    }
-//
-//
-//    @PostMapping(value = ["/change_password"])
-//    fun changeUserPassword(@PathVariable id: Long, @RequestParam oldPassword: String,
-//                           @RequestParam newPassword: String): ResponseEntity<Any> {
-//        return try {
-//            val result = UserModel(this).updatePassword(id, oldPassword, newPassword)
-//            return if (result.success)
-//                responseData(result.data)
-//            else response(result.code, result.message)
-//        }
-//        catch (e: Exception) {
-//            autoWired(LogUtils::class.java).logError(e)
-//            response(500, "system-error")
-//        }
-//    }
+@RequestMapping("/user")
+class UserController(private val userModel: UserModel): BaseController() {
+
+    @GetMapping(value = ["/user"])
+    fun getUserInfo(@RequestParam search: String, @RequestParam searchField: String): ResponseEntity<Any> {
+        return try {
+            val result = userModel.getUserInfo()
+            return if (result.success) responseData(result.data)
+            else response(result.code, result.message)
+        }
+        catch (e: Exception) {
+            LogUtils.logError(e.message.toString())
+            response(500, "system-error")
+        }
+    }
+
+
+    @PostMapping(value = ["/user/profile"])
+    fun updateUserInfo(@AuthenticationPrincipal user: UserDetails, @RequestParam req: UserInfoDTO): ResponseEntity<Any> {
+        return try {
+            val result = userModel.updateUserInfo(user.username, req)
+            return if (result.success) responseData(result.data)
+            else response(result.code, result.message)
+        }
+        catch (e: Exception) {
+            LogUtils.logError(e.message.toString())
+            response(500, "system-error")
+        }
+    }
+
+
+    @DeleteMapping(value = ["/user/{id}"])
+    fun deleteUserInfo(@PathVariable id: Long): ResponseEntity<Any> {
+        return try {
+            val result = userModel.deleteUserInfo(id)
+            return if (result.success) responseData(result.data)
+            else response(result.code, result.message)
+        }
+        catch (e: Exception) {
+            LogUtils.logError(e.message.toString())
+            response(500, "system-error")
+        }
+    }
+
+
+    @PostMapping(value = ["/change-password"])
+    fun changeUserPassword(@AuthenticationPrincipal user: UserDetails, @RequestParam oldPassword: String, @RequestParam newPassword: String): ResponseEntity<Any> {
+        return try {
+            val result = userModel.changeUserPassword(user.username, oldPassword, newPassword)
+            return if (result.success) responseData(result.data)
+            else response(result.code, result.message)
+        }
+        catch (e: Exception) {
+            LogUtils.logError(e.message.toString())
+            response(500, "system-error")
+        }
+    }
 
 }

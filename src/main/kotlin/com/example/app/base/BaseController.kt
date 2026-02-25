@@ -21,16 +21,14 @@ import java.util.ResourceBundle
 
 @CrossOrigin(value = ["*"])
 open class BaseController: ResponseEntityExceptionHandler() {
-    var logUtil = autoWired(LogUtils::class.java)
-
     @Autowired
     lateinit var context: ApplicationContext
 
     @Autowired
     private lateinit var jwtUtil: JwtUtil
 
-    @Autowired
-    lateinit var request: HttpServletRequest
+//    @Autowired
+//    lateinit var request: HttpServletRequest
 
     lateinit var userLanguage: String
 
@@ -103,7 +101,7 @@ open class BaseController: ResponseEntityExceptionHandler() {
     fun userIdRequest(): String {
         val token = loadHeader("token")?.let {
             if (it.isEmpty()) {
-                autoWired(LogUtils::class.java).logError("token error")
+                LogUtils.logError("token error")
                 null
             }
             else jwtUtil.getAllClaims(it)
@@ -112,40 +110,40 @@ open class BaseController: ResponseEntityExceptionHandler() {
     }
 
 
-    inline fun <reified T: Any> autoWired(clazz: Class<T>, nameBean: String? = null,
-                                           initArgs: Array<Any>? = arrayOf()): T {
-        try {
-            nameBean?.let {
-                return context.getBean(nameBean, clazz)
-            }
-            return try {
-                try {
-                    ApplicationContextProvider.autoWired(clazz)
-                } catch (_: Exception) {
-                    if (initArgs.isNullOrEmpty()) clazz.getDeclaredConstructor().newInstance()
-                    else clazz.getDeclaredConstructor(clazz).newInstance()
-                }
-
-            } catch (e: Exception) {
-                e.printStackTrace()
-                clazz.getDeclaredConstructor(clazz).newInstance()
-            } as T
-        }
-        catch (e: Exception) {
-            e.printStackTrace()
-            return try {
-                clazz.getDeclaredConstructor(clazz).newInstance(null)
-            }
-            catch (e: Exception) {
-                e.printStackTrace()
-                return if (initArgs.isNullOrEmpty()) {
-                    clazz.getDeclaredConstructor().newInstance()
-                }
-                else clazz.getDeclaredConstructor().newInstance(initArgs)
-
-            }
-        }
-    }
+//    inline fun <reified T: Any> autoWired(clazz: Class<T>, nameBean: String? = null,
+//                                           initArgs: Array<Any>? = arrayOf()): T {
+//        try {
+//            nameBean?.let {
+//                return context.getBean(nameBean, clazz)
+//            }
+//            return try {
+//                try {
+//                    ApplicationContextProvider.autoWired(clazz)
+//                } catch (_: Exception) {
+//                    if (initArgs.isNullOrEmpty()) clazz.getDeclaredConstructor().newInstance()
+//                    else clazz.getDeclaredConstructor(clazz).newInstance()
+//                }
+//
+//            } catch (e: Exception) {
+//                e.printStackTrace()
+//                clazz.getDeclaredConstructor(clazz).newInstance()
+//            } as T
+//        }
+//        catch (e: Exception) {
+//            e.printStackTrace()
+//            return try {
+//                clazz.getDeclaredConstructor(clazz).newInstance(null)
+//            }
+//            catch (e: Exception) {
+//                e.printStackTrace()
+//                return if (initArgs.isNullOrEmpty()) {
+//                    clazz.getDeclaredConstructor().newInstance()
+//                }
+//                else clazz.getDeclaredConstructor().newInstance(initArgs)
+//
+//            }
+//        }
+//    }
 
 
     open fun deleteTempFile(file: File, inputStream: FileInputStream? = null, folder: Boolean = false) {
@@ -155,14 +153,14 @@ open class BaseController: ResponseEntityExceptionHandler() {
                 if (folder) {
                     for (item in file.listFiles()!!) {
                         if (!item.delete())
-                            logUtil.logInfo("Cannot delete file: ${file.absolutePath}")
+                            LogUtils.logInfo("Cannot delete file: ${file.absolutePath}")
                     }
                 }
                 inputStream?.close()
-                logUtil.logInfo("Delete file: ${file.delete()}")
+                LogUtils.logInfo("Delete file: ${file.delete()}")
             }
             catch (e: Exception) {
-                logUtil.logError(e, this)
+                LogUtils.logError(e.message.toString(), e)
             }
         }
     }

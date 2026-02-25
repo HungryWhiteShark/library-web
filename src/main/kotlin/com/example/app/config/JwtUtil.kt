@@ -16,7 +16,6 @@ import java.util.Date
 @Service
 @EnableConfigurationProperties(JwtProperties::class)
 class JwtUtil(jwtProperties: JwtProperties): BaseService() {
-
     private val secretKey = Keys.hmacShaKeyFor(jwtProperties.key.toByteArray())
 
     fun extractEmail(token: String): String? = getAllClaims(token).subject
@@ -28,7 +27,11 @@ class JwtUtil(jwtProperties: JwtProperties): BaseService() {
     }
 
 
-    fun buildToken(extraClaims: Map<String, Any>, userDetail: UserDetails, expire: Long): String {
+    fun buildToken(extraClaims: HashMap<String, Any>, userDetail: UserDetails, expire: Long): String {
+        val roles = userDetail.authorities.map { it.authority }
+        println(roles)
+        extraClaims["roles"] = roles
+
         return Jwts.builder()
             .claims(extraClaims)
             .subject(userDetail.username)
@@ -46,14 +49,13 @@ class JwtUtil(jwtProperties: JwtProperties): BaseService() {
             }
         }
         catch (exp: ExpiredJwtException) {
-            logError(exp)
+            LogUtils.logError(exp.message.toString())
             true
         }
         catch (e: Exception) {
-            logError(e)
+            LogUtils.logError(e.message.toString())
             true
         }
-
     }
 
 
@@ -61,4 +63,5 @@ class JwtUtil(jwtProperties: JwtProperties): BaseService() {
         val email = getAllClaims(token).subject
         return userEmail == email && !isTokenExpired(token)
     }
+
 }

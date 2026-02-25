@@ -1,6 +1,7 @@
 package com.example.app.model.service
 
 import com.example.app.base.BaseService
+import com.example.app.utils.LogUtils
 import jakarta.persistence.PersistenceContext
 import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
@@ -25,7 +26,7 @@ open class DatabaseService: BaseService() {
         }
         catch (e: Exception) {
             session.transaction.rollback()
-            logError(e)
+            LogUtils.logError(e.message.toString())
             null
         }
         finally {
@@ -42,7 +43,7 @@ open class DatabaseService: BaseService() {
             entity
         }
         catch (e: Exception) {
-            logError(e)
+            LogUtils.logError(e.message.toString())
             null
         }
     }

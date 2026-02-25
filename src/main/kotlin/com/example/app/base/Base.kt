@@ -5,6 +5,7 @@ import jakarta.persistence.Table
 import org.springframework.context.ApplicationContext
 
 
+
 abstract class Base {
     abstract fun context(): ApplicationContext
 
@@ -14,7 +15,7 @@ abstract class Base {
             return entity.getAnnotation(Table::class.java).name
         }
         catch (e: Exception) {
-            logError(e, entity)
+            LogUtils.logError(e.message.toString())
             return ""
         }
     }
@@ -36,7 +37,7 @@ abstract class Base {
 
                 }
                 catch (e: Exception) {
-                    logError(e)
+                    LogUtils.logError(e.message.toString())
                     clazz.getDeclaredConstructor(Any::class.java).newInstance()
                 }
             }
@@ -54,23 +55,4 @@ abstract class Base {
         }
     }
 
-
-    open fun logError(api: Any, clazz: Any?=null) {
-        autoWired(LogUtils::class.java).logError(api, clazz)
-    }
-
-
-    open fun logError(e: Exception, clazz: Any? = null) {
-        autoWired(LogUtils::class.java).logError(e, clazz)
-    }
-
-
-    open fun logInfo(info: Any, clazz: Any?=null) {
-        autoWired(LogUtils::class.java).logInfo(info, clazz)
-    }
-
 }
-
-
-
-
