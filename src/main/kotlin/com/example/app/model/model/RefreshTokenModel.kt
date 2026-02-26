@@ -5,8 +5,8 @@ import com.example.app.model.dto.RefreshTokenDTO
 import com.example.app.model.repo.RefreshTokenRepo
 import com.example.app.model.service.DatabaseService
 import com.example.app.model.service.Result
+import com.example.app.utils.LogUtils
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
-import java.time.Instant
 
 
 
@@ -28,7 +28,7 @@ class RefreshTokenModel(private val jdbc: NamedParameterJdbcTemplate, private va
                 val new = RefreshToken(
                     tokenValue = data.refreshToken,
                     ipAddress = data.ipAddress,
-                    expiryDate = Instant.now().toEpochMilli(),
+                    expiryDate = data.expiryDate,
                     deviceInfo = data.deviceInfo,
                     email = data.email,
                     revoked = false
@@ -37,6 +37,7 @@ class RefreshTokenModel(private val jdbc: NamedParameterJdbcTemplate, private va
             }
         }
         catch (e: Exception) {
+            LogUtils.logError(e.message.toString(), e)
             return Result("error", 101)
         }
     }

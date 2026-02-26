@@ -13,5 +13,5 @@ spring:
 
 jwt:
   key: ${JWT_KEY}
-  access-token-expiration: 15m
-  refresh-token-expiration: 15d
+  access-token-expiration: 3600000
+  refresh-token-expiration: 1296000000

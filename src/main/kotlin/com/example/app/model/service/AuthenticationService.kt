@@ -11,7 +11,6 @@ import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Service
-import java.time.Instant
 
 
 
@@ -49,7 +48,7 @@ class AuthenticationService(
             refreshToken = refreshToken,
             deviceInfo = deviceInfo.message,
             email = authRequest.email,
-            expiryDate = Instant.now().toEpochMilli(),
+            expiryDate = jwtProperties.refreshTokenExpiration.toMillis() + System.currentTimeMillis(),
             ipAddress = ipAddress
         )
         RefreshTokenModel(jdbc, db).updateRefreshToken(data)

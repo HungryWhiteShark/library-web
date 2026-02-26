@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository
 
 
 @Repository
-open class DatabaseService: BaseService() {
+class DatabaseService: BaseService() {
     @PersistenceContext
     private lateinit var entityManager: EntityManager
 

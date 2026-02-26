@@ -5,13 +5,11 @@ import com.example.app.model.dto.AuthenticationRequest
 import com.example.app.model.dto.UserInfoDTO
 import com.example.app.model.model.UserModel
 import com.example.app.model.service.AuthenticationService
-import com.example.app.model.service.DatabaseService
 import com.example.app.utils.LogUtils
 import jakarta.servlet.http.Cookie
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.ResponseEntity
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping

@@ -6,14 +6,16 @@ import com.example.app.model.dto.UserInfoDTO
 import com.example.app.model.repo.UserInfoRepo
 import com.example.app.model.service.Result
 import com.example.app.utils.LogUtils
+import org.springframework.stereotype.Service
 
 
 
+@Service
 class UserModel(private val userRepo: UserInfoRepo) {
 
     fun registerUser(user: UserInfoDTO): Result {
         return try {
-            userRepo.getUserInfo(user.email, user.citizenId).firstOrNull().let {
+            userRepo.getUserInfo(email = user.email, citizenId = user.citizenId).firstOrNull().let {
                 if (it == null) {
                     val hashedPassword = ApplicationConfig().encoder().encode(user.password)
                     val new = UserInfo(
@@ -39,9 +41,10 @@ class UserModel(private val userRepo: UserInfoRepo) {
     }
 
 
-    fun getUserInfo(): Result {
+    fun getUserInfo(email: String, citizenId: String?, deleted: Boolean?): Result {
         return try {
-            Result("", 100)
+            val res = userRepo.getUserInfo(email = email, citizenId = citizenId, deleted = deleted)
+            Result("", 100, res.ifEmpty { emptyList() })
         }
         catch (e: Exception) {
             LogUtils.logError(e.message.toString(), e)
@@ -52,7 +55,13 @@ class UserModel(private val userRepo: UserInfoRepo) {
 
     fun deleteUserInfo(id: Long): Result {
         return try {
-            Result("", 100)
+            userRepo.getUserInfo(userId = id).firstOrNull().let {
+                if (it != null) {
+                    return Result("", 100, userRepo.deleteUser(it))
+                }
+            }
+            LogUtils.logInfo("user-info-not-found")
+            Result("user-info-not-found", 101)
         }
         catch (e: Exception) {
             LogUtils.logError(e.message.toString(), e)
@@ -61,9 +70,23 @@ class UserModel(private val userRepo: UserInfoRepo) {
     }
 
 
-    fun updateUserInfo(userName: String, req: UserInfoDTO): Result {
+    fun updateUserInfo(email: String, req: UserInfoDTO): Result {
         return try {
-            Result("", 100)
+            userRepo.getUserInfo(email = email).firstOrNull().let {
+                if (it != null) {
+                    val new = UserInfo(
+                        citizenId = req.citizenId,
+                        email = req.email,
+                        gender = req.gender,
+                        age = req.age,
+                        fullName = req.fullName,
+                        phoneNumber = req.phoneNumber
+                    )
+                    return Result("", 100, userRepo.addUser(new))
+                }
+            }
+            LogUtils.logInfo("user-info-not-found")
+            Result("user-info-not-found", 101)
         }
         catch (e: Exception) {
             LogUtils.logError(e.message.toString(), e)
@@ -72,9 +95,17 @@ class UserModel(private val userRepo: UserInfoRepo) {
     }
 
 
-    fun changeUserPassword(userName: String, oldPassword: String, newPassword: String): Result {
+    fun changeUserPassword(email: String, oldPassword: String, newPassword: String): Result {
         return try {
-            Result("", 100)
+            val hashedOldPassword = ApplicationConfig().encoder().encode(oldPassword)!!
+            userRepo.getUserInfo(email = email, password = hashedOldPassword).firstOrNull().let {
+                if (it != null) {
+                    it.password = ApplicationConfig().encoder().encode(newPassword)!!
+                    return Result("", 100, userRepo.addUser(it))
+                }
+            }
+            LogUtils.logInfo("old-password-not-correct")
+            Result("old-password-not-correct", 100)
         }
         catch (e: Exception) {
             LogUtils.logError(e.message.toString(), e)

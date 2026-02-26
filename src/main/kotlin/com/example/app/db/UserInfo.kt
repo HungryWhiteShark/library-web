@@ -48,7 +48,9 @@ data class UserInfo (
     var dateCreated: LocalDateTime = LocalDateTime.now(),
 
     @UpdateTimestamp
-    var dateUpdated: LocalDateTime = LocalDateTime.now()
+    var dateUpdated: LocalDateTime = LocalDateTime.now(),
+
+    var deleted: Boolean = false
 
 ): Serializable {
     companion object {
