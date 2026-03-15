@@ -15,7 +15,7 @@ import java.util.Date
 
 @Service
 @EnableConfigurationProperties(JwtProperties::class)
-class JwtUtil(jwtProperties: JwtProperties): BaseService() {
+class JwtUtil(private val jwtProperties: JwtProperties): BaseService() {
     private val secretKey = Keys.hmacShaKeyFor(jwtProperties.key.toByteArray())
 
     fun extractEmail(token: String): String? = getAllClaims(token).subject
@@ -62,6 +62,15 @@ class JwtUtil(jwtProperties: JwtProperties): BaseService() {
     fun isTokenValid(token: String, userEmail: String): Boolean {
         val email = getAllClaims(token).subject
         return userEmail == email && !isTokenExpired(token)
+    }
+
+    fun generateAccessToken(userDetail: UserDetails): String {
+        return buildToken(hashMapOf(), userDetail, jwtProperties.accessTokenExpiration.toMillis())
+    }
+
+
+    fun generateRefreshToken(userDetail: UserDetails): String {
+        return buildToken(hashMapOf(), userDetail, jwtProperties.refreshTokenExpiration.toMillis())
     }
 
 }

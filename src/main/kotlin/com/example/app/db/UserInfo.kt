@@ -44,6 +44,9 @@ data class UserInfo (
     @Column(columnDefinition = "int")
     var role: Int = 2,
 
+    @Column(columnDefinition = "text", nullable = true)
+    var avatar: String? = "",
+
     @CreationTimestamp
     var dateCreated: LocalDateTime = LocalDateTime.now(),
 

@@ -1,6 +1,7 @@
 package com.example.app.model.repo
 
 import com.example.app.db.UserInfo
+import com.example.app.model.dto.UserInfoResponse
 import com.example.app.model.service.DatabaseService
 import jakarta.transaction.Transactional
 import org.springframework.jdbc.core.BeanPropertyRowMapper
@@ -12,12 +13,17 @@ import org.springframework.stereotype.Repository
 @Repository
 @Transactional
 class UserInfoRepo(private val jdbc: NamedParameterJdbcTemplate, private val db: DatabaseService) {
-    fun getUserInfo(password: String? = null, userId: Long = 0L, email: String = "",
-                    citizenId: String? = null, deleted: Boolean? = false): List<UserInfo> {
+    fun getUserInfo(password: String? = null, userId: Long = 0L, email: String? = null,
+                    citizenId: String? = null, deleted: Boolean = false): List<UserInfoResponse> {
         val params = hashMapOf<String, Any>()
         val sql = buildString {
-            append(" select * from ${UserInfo.TABLE} where and email = :email ")
-            params["email"] = email
+            append(" select * from ${UserInfo.TABLE} where email ")
+            email?.let {
+                append(" = :email ")
+                params["email"] = it
+            } ?: run {
+                append(" like '%' ")
+            }
 
             deleted?.let {
                 append(" and deleted = :deleted ")
@@ -40,7 +46,7 @@ class UserInfoRepo(private val jdbc: NamedParameterJdbcTemplate, private val db:
 
         return jdbc.query(
             sql, params,
-            BeanPropertyRowMapper(UserInfo::class.java)
+            BeanPropertyRowMapper(UserInfoResponse::class.java)
         )
     }
 

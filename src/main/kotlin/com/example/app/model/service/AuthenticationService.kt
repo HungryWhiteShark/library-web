@@ -9,7 +9,6 @@ import com.example.app.model.model.RefreshTokenModel
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
-import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Service
 
 
@@ -23,16 +22,6 @@ class AuthenticationService(
     , private val jdbc: NamedParameterJdbcTemplate
     , private val db: DatabaseService) {
 
-    fun generateAccessToken(userDetail: UserDetails): String {
-        return jwtUtil.buildToken(hashMapOf(), userDetail, jwtProperties.accessTokenExpiration.toMillis())
-    }
-
-
-    fun generateRefreshToken(userDetail: UserDetails): String {
-        return jwtUtil.buildToken(hashMapOf(), userDetail, jwtProperties.refreshTokenExpiration.toMillis())
-    }
-
-
     fun authentication(authRequest: AuthenticationRequest,
                        userAgent: String, ipAddress: String): AuthenticationResponse {
         authManager.authenticate(UsernamePasswordAuthenticationToken(
@@ -41,8 +30,8 @@ class AuthenticationService(
 
         val user = userDetailService.loadUserByUsername(authRequest.email)
 
-        val accessToken = generateAccessToken(user)
-        val refreshToken = generateRefreshToken(user)
+        val accessToken = jwtUtil.generateAccessToken(user)
+        val refreshToken = jwtUtil.generateRefreshToken(user)
         val deviceInfo = DeviceInfoService().getDeviceInfo(userAgent)
         val data = RefreshTokenDTO(
             refreshToken = refreshToken,
@@ -51,7 +40,7 @@ class AuthenticationService(
             expiryDate = jwtProperties.refreshTokenExpiration.toMillis() + System.currentTimeMillis(),
             ipAddress = ipAddress
         )
-        RefreshTokenModel(jdbc, db).updateRefreshToken(data)
+        RefreshTokenModel(jdbc, db, jwtUtil, userDetailService, jwtProperties).createRefreshToken(data)
 
         return AuthenticationResponse(accessToken, refreshToken)
     }

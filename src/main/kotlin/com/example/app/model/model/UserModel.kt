@@ -2,7 +2,8 @@ package com.example.app.model.model
 
 import com.example.app.config.ApplicationConfig
 import com.example.app.db.UserInfo
-import com.example.app.model.dto.UserInfoDTO
+import com.example.app.model.dto.UserInfoRequest
+import com.example.app.model.dto.UserInfoResponse
 import com.example.app.model.repo.UserInfoRepo
 import com.example.app.model.service.Result
 import com.example.app.utils.LogUtils
@@ -13,7 +14,20 @@ import org.springframework.stereotype.Service
 @Service
 class UserModel(private val userRepo: UserInfoRepo) {
 
-    fun registerUser(user: UserInfoDTO): Result {
+    fun UserInfoResponse.toUserInfo(): UserInfo {
+        return UserInfo(
+            userId = this.userId,
+            fullName = this.fullName,
+            email = this.email,
+            gender = this.gender,
+            citizenId = this.citizenId,
+            age = this.age,
+            phoneNumber = this.phoneNumber,
+            role = this.role
+        )
+    }
+
+    fun registerUser(user: UserInfoRequest): Result {
         return try {
             userRepo.getUserInfo(email = user.email, citizenId = user.citizenId).firstOrNull().let {
                 if (it == null) {
@@ -41,7 +55,7 @@ class UserModel(private val userRepo: UserInfoRepo) {
     }
 
 
-    fun getUserInfo(email: String, citizenId: String?, deleted: Boolean?): Result {
+    fun getUserInfo(email: String?, citizenId: String?, deleted: Boolean): Result {
         return try {
             val res = userRepo.getUserInfo(email = email, citizenId = citizenId, deleted = deleted)
             Result("", 100, res.ifEmpty { emptyList() })
@@ -57,7 +71,7 @@ class UserModel(private val userRepo: UserInfoRepo) {
         return try {
             userRepo.getUserInfo(userId = id).firstOrNull().let {
                 if (it != null) {
-                    return Result("", 100, userRepo.deleteUser(it))
+                    return Result("", 100, userRepo.deleteUser(it.toUserInfo()))
                 }
             }
             LogUtils.logInfo("user-info-not-found")
@@ -70,9 +84,9 @@ class UserModel(private val userRepo: UserInfoRepo) {
     }
 
 
-    fun updateUserInfo(email: String, req: UserInfoDTO): Result {
+    fun updateUserInfo(id: Long, req: UserInfoRequest): Result {
         return try {
-            userRepo.getUserInfo(email = email).firstOrNull().let {
+            userRepo.getUserInfo(userId = id).firstOrNull().let {
                 if (it != null) {
                     val new = UserInfo(
                         citizenId = req.citizenId,
@@ -101,7 +115,7 @@ class UserModel(private val userRepo: UserInfoRepo) {
             userRepo.getUserInfo(email = email, password = hashedOldPassword).firstOrNull().let {
                 if (it != null) {
                     it.password = ApplicationConfig().encoder().encode(newPassword)!!
-                    return Result("", 100, userRepo.addUser(it))
+                    return Result("", 100, userRepo.addUser(it.toUserInfo()))
                 }
             }
             LogUtils.logInfo("old-password-not-correct")
