@@ -1,6 +1,5 @@
 package com.example.app.model.service
 
-import com.example.app.db.UserInfo
 import com.example.app.model.dto.UserInfoResponse
 import com.example.app.model.repo.UserInfoRepo
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate

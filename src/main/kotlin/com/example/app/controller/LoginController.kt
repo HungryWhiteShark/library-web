@@ -42,12 +42,11 @@ class LoginController(
             cookie.maxAge = 15 * 24 * 60 * 60 // 15 days
 
             response.addCookie(cookie)
-            return response(100, "")
-
+            return responseData(authResponse.accessToken, 100, "")
         }
         catch (e: Exception) {
             LogUtils.logError(e.message.toString())
-            response(102, "login-error")
+            response(500, "system-error")
         }
     }
 
@@ -69,12 +68,20 @@ class LoginController(
 
 
     @PostMapping(value = ["/refresh"])
-    fun refreshToken(@CookieValue(name = "refresh_token") requestToken: String?): ResponseEntity<Any> {
-        return try {
-            val result = refreshTokenModel.updateRefreshToken(requestToken)
+    fun refreshToken(@CookieValue(name = "refresh_token") requestToken: String?
+                            , response: HttpServletResponse): ResponseEntity<Any> {
 
-            return if (result.success) responseData(result.data)
-            else response(result.code, result.message)
+        return try {
+            val result = authService.refreshToken(requestToken)
+            val cookie = Cookie("refresh_token", result.refreshToken)
+
+            cookie.isHttpOnly = true // prevent JS access
+            cookie.secure = true     // only sends over https
+            cookie.path = "/auth/refresh"
+            cookie.maxAge = 15 * 24 * 60 * 60 // 15 days
+
+            response.addCookie(cookie)
+            return responseData(result.accessToken, 100, "")
         }
         catch (e: Exception) {
             LogUtils.logError(e.message.toString())

@@ -10,7 +10,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.stereotype.Service
-
+import java.util.UUID
 
 
 @Service
@@ -29,19 +29,27 @@ class AuthenticationService(
         ))
 
         val user = userDetailService.loadUserByUsername(authRequest.email)
-
         val accessToken = jwtUtil.generateAccessToken(user)
-        val refreshToken = jwtUtil.generateRefreshToken(user)
-        val deviceInfo = DeviceInfoService().getDeviceInfo(userAgent)
+        val refreshToken = UUID.randomUUID().toString()
         val data = RefreshTokenDTO(
-            refreshToken = refreshToken,
-            deviceInfo = deviceInfo.message,
             email = authRequest.email,
-            expiryDate = jwtProperties.refreshTokenExpiration.toMillis() + System.currentTimeMillis(),
-            ipAddress = ipAddress
+            userAgent = userAgent,
+            ipAddress = ipAddress,
+            tokenValue = refreshToken
         )
-        RefreshTokenModel(jdbc, db, jwtUtil, userDetailService, jwtProperties).createRefreshToken(data)
+        RefreshTokenModel(jdbc, db, jwtProperties).createRefreshToken(data)
+        return AuthenticationResponse(accessToken, refreshToken)
+    }
 
+
+    fun refreshToken(requestToken: String?): AuthenticationResponse {
+        val refreshToken = UUID.randomUUID().toString()
+        val email = RefreshTokenModel(jdbc, db, jwtProperties)
+            .updateRefreshToken(requestToken, refreshToken)
+            .data.toString()
+
+        val user = userDetailService.loadUserByUsername(email)
+        val accessToken = jwtUtil.generateAccessToken(user)
         return AuthenticationResponse(accessToken, refreshToken)
     }
 

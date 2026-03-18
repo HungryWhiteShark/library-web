@@ -19,11 +19,12 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 class SecurityConfig(private val jwtAuthenticationFilter: JwtAuthenticationFilter) {
     @Bean
     fun filterChain(http: HttpSecurity): SecurityFilterChain {
-        http.sessionManagement { session ->
-            session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-        }
+        http
             .cors { it.configurationSource(corsConfig()) }
             .csrf { it.disable() }
+            .sessionManagement { session ->
+            session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+        }
             .authorizeHttpRequests { auth ->
                 auth.requestMatchers("/auth/**", "/error").permitAll()
                 auth.anyRequest().authenticated()
@@ -37,10 +38,11 @@ class SecurityConfig(private val jwtAuthenticationFilter: JwtAuthenticationFilte
     fun corsConfig(): CorsConfigurationSource {
         val config = CorsConfiguration()
 
-        config.allowedOrigins = listOf("http://localhost:3000")
+        config.allowedOrigins = listOf("http://localhost:5173")
         config.allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS")
         config.allowedHeaders = listOf("Authorization", "Content-Type", "Cache-Control")
         config.allowCredentials = true
+        config.exposedHeaders = listOf("Authorization", "Set-Cookie")
 
         val source = UrlBasedCorsConfigurationSource()
         source.registerCorsConfiguration("/**", config)

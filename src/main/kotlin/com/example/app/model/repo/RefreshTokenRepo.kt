@@ -14,7 +14,7 @@ import java.time.Instant
 @Transactional
 class RefreshTokenRepo(private val jdbc: NamedParameterJdbcTemplate, private val db: DatabaseService) {
 
-    fun getRefreshToken(email: String? = null, deviceInfo: String? = null, tokenValue: String? = null): List<RefreshToken> {
+    fun getRefreshToken(email: String? = null, deviceInfo: String? = null, requestToken: String? = null): List<RefreshToken> {
         val params = hashMapOf<String, Any>()
         val sql = buildString {
             append("select * from ${RefreshToken.TABLE} where expiry_date >= :expiry ")
@@ -27,9 +27,9 @@ class RefreshTokenRepo(private val jdbc: NamedParameterJdbcTemplate, private val
                 append(" and device_info like '%:device%' ")
                 params["device"] = deviceInfo
             }
-            tokenValue?.let {
-                append(" and token_value = :tokenValue ")
-                params["token"] = tokenValue
+            requestToken?.let {
+                append(" and token_value = :token ")
+                params["token"] = requestToken
             }
         }
 

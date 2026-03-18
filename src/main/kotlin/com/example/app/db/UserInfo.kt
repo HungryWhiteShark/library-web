@@ -53,6 +53,7 @@ data class UserInfo (
     @UpdateTimestamp
     var dateUpdated: LocalDateTime = LocalDateTime.now(),
 
+    @Column(columnDefinition = "boolean")
     var deleted: Boolean = false
 
 ): Serializable {
