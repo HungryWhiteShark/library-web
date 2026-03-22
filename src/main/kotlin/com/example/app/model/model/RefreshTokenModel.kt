@@ -21,7 +21,7 @@ class RefreshTokenModel(private val jdbc: NamedParameterJdbcTemplate, private va
         return try {
             val deviceInfo = DeviceInfoService().getDeviceInfo(data.userAgent).message
             val expiryDate = jwtProperties.refreshTokenExpiration.toMillis() + System.currentTimeMillis()
-            RefreshTokenRepo(jdbc, db).getRefreshToken(data.email, deviceInfo).firstOrNull().let {
+            RefreshTokenRepo(jdbc, db).getRefreshToken(email = data.email, deviceInfo = deviceInfo).firstOrNull().let {
                 if (it == null) {
                     val new = RefreshToken(
                         tokenValue = data.tokenValue,
@@ -33,9 +33,9 @@ class RefreshTokenModel(private val jdbc: NamedParameterJdbcTemplate, private va
                     )
                     return Result("", 100, RefreshTokenRepo(jdbc, db).addRefreshToken(new))
                 }
+
+                else Result("", 100, updateRefreshToken(it.tokenValue, data.tokenValue))
             }
-            LogUtils.logInfo("create-refresh-token-error")
-            Result("create-refresh-token-error", 101)
         }
         catch (e: Exception) {
             LogUtils.logError(e.message.toString(), e)
@@ -54,9 +54,11 @@ class RefreshTokenModel(private val jdbc: NamedParameterJdbcTemplate, private va
                     RefreshTokenRepo(jdbc, db).addRefreshToken(it)
                     return Result("", 100, it.email)
                 }
+                else {
+                    LogUtils.logInfo("update-refresh-token-error")
+                    Result("update-refresh-token-error", 101, null)
+                }
             }
-            LogUtils.logInfo("update-refresh-token-error")
-            Result("update-refresh-token-error", 101)
         }
         catch (e: Exception) {
             LogUtils.logError(e.message.toString(), e)

@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service
 import java.util.UUID
 
 
+
+
 @Service
 class AuthenticationService(
     private val authManager: AuthenticationManager
@@ -23,7 +25,8 @@ class AuthenticationService(
     , private val db: DatabaseService) {
 
     fun authentication(authRequest: AuthenticationRequest,
-                       userAgent: String, ipAddress: String): AuthenticationResponse {
+                            userAgent: String, ipAddress: String): AuthenticationResponse {
+
         authManager.authenticate(UsernamePasswordAuthenticationToken(
             authRequest.email, authRequest.password
         ))
@@ -44,13 +47,15 @@ class AuthenticationService(
 
     fun refreshToken(requestToken: String?): AuthenticationResponse {
         val refreshToken = UUID.randomUUID().toString()
-        val email = RefreshTokenModel(jdbc, db, jwtProperties)
-            .updateRefreshToken(requestToken, refreshToken)
-            .data.toString()
-
-        val user = userDetailService.loadUserByUsername(email)
-        val accessToken = jwtUtil.generateAccessToken(user)
-        return AuthenticationResponse(accessToken, refreshToken)
+        RefreshTokenModel(jdbc, db, jwtProperties).updateRefreshToken(requestToken, refreshToken)
+            .data?.toString().let {
+                if (it != null) {
+                    val user = userDetailService.loadUserByUsername(it)
+                    val accessToken = jwtUtil.generateAccessToken(user)
+                    return AuthenticationResponse(accessToken, refreshToken)
+                }
+                else return AuthenticationResponse(null,null)
+            }
     }
 
 }

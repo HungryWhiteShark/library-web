@@ -22,9 +22,7 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/auth")
 class LoginController(
-    private val authService: AuthenticationService,
-    private val userModel: UserModel,
-    private val refreshTokenModel: RefreshTokenModel): BaseController() {
+    private val authService: AuthenticationService, private val userModel: UserModel): BaseController() {
 
     @PostMapping(value = ["/login"])
     fun login(@RequestBody authRequest: AuthenticationRequest,
@@ -68,20 +66,23 @@ class LoginController(
 
 
     @PostMapping(value = ["/refresh"])
-    fun refreshToken(@CookieValue(name = "refresh_token") requestToken: String?
-                            , response: HttpServletResponse): ResponseEntity<Any> {
+    fun refreshToken(@CookieValue(name = "refresh_token") requestToken: String?,
+                     response: HttpServletResponse): ResponseEntity<Any> {
 
         return try {
             val result = authService.refreshToken(requestToken)
-            val cookie = Cookie("refresh_token", result.refreshToken)
+            if (result.accessToken != null) {
+                val cookie = Cookie("refresh_token", result.refreshToken)
 
-            cookie.isHttpOnly = true // prevent JS access
-            cookie.secure = true     // only sends over https
-            cookie.path = "/auth/refresh"
-            cookie.maxAge = 15 * 24 * 60 * 60 // 15 days
+                cookie.isHttpOnly = true // prevent JS access
+                cookie.secure = true     // only sends over https
+                cookie.path = "/auth/refresh"
+                cookie.maxAge = 15 * 24 * 60 * 60 // 15 days
 
-            response.addCookie(cookie)
-            return responseData(result.accessToken, 100, "")
+                response.addCookie(cookie)
+                return responseData(result.accessToken, 100, "")
+            }
+            else response(401, "Unauthorized")
         }
         catch (e: Exception) {
             LogUtils.logError(e.message.toString())
