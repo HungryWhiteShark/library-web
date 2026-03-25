@@ -3,6 +3,7 @@ package com.example.app.model.service
 import com.example.app.utils.JwtAuthenticationFilter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.http.HttpMethod
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
@@ -22,13 +23,12 @@ class SecurityConfig(private val jwtAuthenticationFilter: JwtAuthenticationFilte
         http
             .cors { it.configurationSource(corsConfig()) }
             .csrf { it.disable() }
-            .sessionManagement { session ->
-            session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-        }
             .authorizeHttpRequests { auth ->
-                auth.requestMatchers("/auth/**", "/error").permitAll()
+                auth.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                auth.requestMatchers("/auth/**").permitAll()
                 auth.anyRequest().authenticated()
             }
+            .sessionManagement { session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
         return http.build()
     }
@@ -38,10 +38,11 @@ class SecurityConfig(private val jwtAuthenticationFilter: JwtAuthenticationFilte
     fun corsConfig(): CorsConfigurationSource {
         val config = CorsConfiguration()
 
-        config.allowedOrigins = listOf("http://localhost:5173")
+        config.allowedOrigins = listOf("http://localhost:5173", "http://127.0.0.1:5173")
         config.allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS")
-        config.allowedHeaders = listOf("Authorization", "Content-Type", "Cache-Control")
+        config.allowedHeaders = listOf("Authorization", "Content-Type", "Accept", "X-Requested-With")
         config.allowCredentials = true
+        config.maxAge = 3600L // 1 hour
         config.exposedHeaders = listOf("Authorization", "Set-Cookie")
 
         val source = UrlBasedCorsConfigurationSource()
