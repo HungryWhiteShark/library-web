@@ -7,3 +7,9 @@ data class RefreshTokenDTO(
     val tokenValue: String = "",
     val ipAddress: String = ""
 )
+
+
+data class LoginResponseDTO(
+    val token: String? = null,
+    val user: HashMap<String, Any>
+)

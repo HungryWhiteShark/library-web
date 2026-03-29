@@ -38,9 +38,9 @@ class SecurityConfig(private val jwtAuthenticationFilter: JwtAuthenticationFilte
     fun corsConfig(): CorsConfigurationSource {
         val config = CorsConfiguration()
 
-        config.allowedOrigins = listOf("http://localhost:5173", "http://127.0.0.1:5173")
+        config.allowedOrigins = listOf("http://localhost:5173")
         config.allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS")
-        config.allowedHeaders = listOf("Authorization", "Content-Type", "Accept", "X-Requested-With")
+        config.allowedHeaders = listOf("*")
         config.allowCredentials = true
         config.maxAge = 3600L // 1 hour
         config.exposedHeaders = listOf("Authorization", "Set-Cookie")

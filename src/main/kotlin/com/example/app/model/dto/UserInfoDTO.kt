@@ -7,7 +7,7 @@ data class UserInfoRequest(
     var email: String = "",
     var age: Int = 0,
     var gender: Boolean = true,
-    var phoneNumber: String? = ""
+    var phoneNumber: String = ""
 )
 
 
@@ -19,6 +19,7 @@ data class UserInfoResponse(
     var password: String = "",
     var age: Int = 0,
     var gender: Boolean = true,
-    var phoneNumber: String? = "",
-    var role: Int = 0
+    var phoneNumber: String = "",
+    var role: Int = 0,
+    var avatar: String = ""
 )

@@ -4,24 +4,23 @@ import com.example.app.config.JwtProperties
 import com.example.app.db.RefreshToken
 import com.example.app.model.dto.RefreshTokenDTO
 import com.example.app.model.repo.RefreshTokenRepo
-import com.example.app.model.service.DatabaseService
 import com.example.app.model.service.DeviceInfoService
 import com.example.app.model.service.Result
 import com.example.app.utils.LogUtils
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Component
 
 
 
 @Component
-class RefreshTokenModel(private val jdbc: NamedParameterJdbcTemplate, private val db: DatabaseService
-                            , private val jwtProperties: JwtProperties) {
+class RefreshTokenModel(
+        private val jwtProperties: JwtProperties,
+        private val refreshTokenRepo: RefreshTokenRepo) {
 
     fun createRefreshToken(data: RefreshTokenDTO): Result {
         return try {
             val deviceInfo = DeviceInfoService().getDeviceInfo(data.userAgent).message
             val expiryDate = jwtProperties.refreshTokenExpiration.toMillis() + System.currentTimeMillis()
-            RefreshTokenRepo(jdbc, db).getRefreshToken(email = data.email, deviceInfo = deviceInfo).firstOrNull().let {
+            refreshTokenRepo.getRefreshToken(email = data.email, deviceInfo = deviceInfo).firstOrNull().let {
                 if (it == null) {
                     val new = RefreshToken(
                         tokenValue = data.tokenValue,
@@ -31,7 +30,7 @@ class RefreshTokenModel(private val jdbc: NamedParameterJdbcTemplate, private va
                         email = data.email,
                         revoked = false
                     )
-                    return Result("", 100, RefreshTokenRepo(jdbc, db).addRefreshToken(new))
+                    return Result("", 100, refreshTokenRepo.addRefreshToken(new))
                 }
 
                 else Result("", 100, updateRefreshToken(it.tokenValue, data.tokenValue))
@@ -47,11 +46,11 @@ class RefreshTokenModel(private val jdbc: NamedParameterJdbcTemplate, private va
     fun updateRefreshToken(requestToken: String?, tokenValue: String): Result {
         return try {
             val expiryDate = jwtProperties.refreshTokenExpiration.toMillis() + System.currentTimeMillis()
-            RefreshTokenRepo(jdbc, db).getRefreshToken(requestToken = requestToken).firstOrNull().let {
+            refreshTokenRepo.getRefreshToken(requestToken = requestToken).firstOrNull().let {
                 if (it != null) {
                     it.tokenValue = tokenValue
                     it.expiryDate = expiryDate
-                    RefreshTokenRepo(jdbc, db).addRefreshToken(it)
+                    refreshTokenRepo.addRefreshToken(it)
                     return Result("", 100, it.email)
                 }
                 else {
@@ -67,20 +66,20 @@ class RefreshTokenModel(private val jdbc: NamedParameterJdbcTemplate, private va
     }
 
 
-//    fun deleteRefreshToken(tokenValue: String?): Result {
-//        return try {
-//            RefreshTokenRepo(jdbc, db).getRefreshToken(tokenValue = tokenValue).firstOrNull().let {
-//                if (it != null) {
-//                    return Result("", 100, RefreshTokenRepo(jdbc, db).deleteRefreshToken(it))
-//                }
-//            }
-//            LogUtils.logInfo("refresh token not found")
-//            Result("refresh token not found", 101)
-//        }
-//        catch (e: Exception) {
-//            LogUtils.logError(e.message.toString(), e)
-//            Result("error", 101)
-//        }
-//    }
+    fun deleteRefreshToken(tokenValue: String?): Result {
+        return try {
+            refreshTokenRepo.getRefreshToken(requestToken = tokenValue).firstOrNull().let {
+                if (it != null) {
+                    return Result("", 100, refreshTokenRepo.deleteRefreshToken(it))
+                }
+            }
+            LogUtils.logInfo("refresh token not found")
+            Result("refresh token not found", 101)
+        }
+        catch (e: Exception) {
+            LogUtils.logError(e.message.toString(), e)
+            Result("error", 101)
+        }
+    }
 
 }

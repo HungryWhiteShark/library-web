@@ -25,22 +25,21 @@ class UserInfoRepo(private val jdbc: NamedParameterJdbcTemplate, private val db:
                 append(" like '%' ")
             }
 
-            deleted?.let {
+            deleted.let {
                 append(" and deleted = :deleted ")
-                params["deleted"] = deleted
+                params["deleted"] = it
             }
             if (userId > 0) {
                 append(" and user_id = :id ")
                 params["id"] = userId
             }
-
             citizenId?.let {
                 append(" and citizen_id = :citizen ")
-                params["citizen"] = citizenId
+                params["citizen"] = it
             }
             password?.let {
                 append(" and password = :password ")
-                params["password"] = password
+                params["password"] = it
             }
         }
 

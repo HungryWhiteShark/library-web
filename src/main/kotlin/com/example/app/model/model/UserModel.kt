@@ -55,14 +55,14 @@ class UserModel(private val userRepo: UserInfoRepo) {
     }
 
 
-    fun getUserInfo(email: String?, citizenId: String?, deleted: Boolean): Result {
+    fun getUserInfo(email: String?, citizenId: String?, deleted: Boolean): List<UserInfoResponse> {
         return try {
             val res = userRepo.getUserInfo(email = email, citizenId = citizenId, deleted = deleted)
-            Result("", 100, res.ifEmpty { emptyList() })
+            return res.ifEmpty { emptyList() }
         }
         catch (e: Exception) {
             LogUtils.logError(e.message.toString(), e)
-            Result(e.message.toString(), 101)
+            emptyList()
         }
     }
 
