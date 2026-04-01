@@ -10,11 +10,7 @@ import com.example.app.utils.LogUtils
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.CookieValue
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 
 
@@ -30,7 +26,7 @@ class LoginController(
             val ipAddress = req.remoteAddr
             val userAgent = req.getHeader("User-Agent") ?: "Unknown"
             val authResponse = authService.authentication(authRequest, userAgent, ipAddress)
-            val cookie = authService.createCookie(authResponse.refreshToken!!)
+            val cookie = authService.createCookie(authResponse.refreshToken!!, null)
             response.addCookie(cookie)
             val user = hashMapOf<String, Any>()
 
@@ -68,14 +64,13 @@ class LoginController(
 
 
     @PostMapping(value = ["/refresh"])
-    fun refreshToken(
-        @CookieValue(name = "refresh_token") requestToken: String?,
-        response: HttpServletResponse): ResponseEntity<Any> {
+    fun refreshToken(@CookieValue(name = "refresh_token") requestToken: String?,
+                     response: HttpServletResponse): ResponseEntity<Any> {
 
         return try {
             val result = authService.refreshToken(requestToken)
             if (result.accessToken != null) {
-                val cookie = authService.createCookie(result.refreshToken!!)
+                val cookie = authService.createCookie(result.refreshToken!!, null)
                 response.addCookie(cookie)
                 val user = hashMapOf<String, Any>()
 
@@ -100,11 +95,14 @@ class LoginController(
 
 
     @PostMapping(value = ["/logout"])
-    fun logout(@CookieValue(name = "refresh_token", required = true) token: String?,
+    fun logout(
+        @RequestHeader("Authorization") authHeader: String?,
+        @CookieValue(name = "refresh_token", required = true) token: String?,
         response: HttpServletResponse): ResponseEntity<Any> {
         return try {
             println(token)
-            if (token != null) authService.deleteRefreshToken(token)
+            if (token != null)
+                authService.deleteRefreshToken(token)
 
             val cookie = authService.createCookie(null, 0)
             response.addCookie(cookie)
@@ -112,6 +110,7 @@ class LoginController(
             responseData(null, 200, "Logged out successfully")
         }
         catch (e: Exception) {
+            e.printStackTrace()
             LogUtils.logError(e.message.toString())
             response(500, "system-error")
         }

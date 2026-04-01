@@ -58,7 +58,7 @@ class AuthenticationService(
 
     fun deleteRefreshToken(refreshToken: String?) {
         refreshTokenModel.deleteRefreshToken(refreshToken).message.let {
-            if (it.isNotEmpty()) {
+            if (it.isEmpty()) {
                 LogUtils.logInfo("refresh token deleted successfully")
             }
             else LogUtils.logError(it)
@@ -66,13 +66,13 @@ class AuthenticationService(
     }
 
 
-    fun createCookie(refreshToken: String?, maxAge: Int = 15 * 24 * 60 * 60): Cookie {
+    fun createCookie(refreshToken: String?, maxAge: Int?): Cookie {
         val cookie = Cookie("refresh_token", refreshToken)
 
         cookie.isHttpOnly = true // prevent JS access
         cookie.secure = false
-        cookie.path = "/auth/refresh"
-        cookie.maxAge = maxAge  // 15 days
+        cookie.path = "/"
+        cookie.maxAge = maxAge ?: (15 * 24 * 60 * 6)  // 15 days
 
         return cookie
     }
