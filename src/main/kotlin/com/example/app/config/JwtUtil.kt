@@ -68,9 +68,4 @@ class JwtUtil(private val jwtProperties: JwtProperties): BaseService() {
         return buildToken(hashMapOf(), userDetail, jwtProperties.accessTokenExpiration.toMillis())
     }
 
-
-    fun generateRefreshToken(userDetail: UserDetails): String {
-        return buildToken(hashMapOf(), userDetail, jwtProperties.refreshTokenExpiration.toMillis())
-    }
-
 }

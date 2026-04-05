@@ -17,6 +17,7 @@ import java.time.Instant
 class RefreshTokenRepo(private val jdbc: NamedParameterJdbcTemplate, private val db: DatabaseService) {
 
     fun getRefreshToken(email: String? = null, deviceInfo: String? = null, requestToken: String? = null): List<RefreshToken> {
+
         val params = MapSqlParameterSource()
         val sql = buildString {
             append("select * from ${RefreshToken.TABLE} where expiry_date >= :expiry ")

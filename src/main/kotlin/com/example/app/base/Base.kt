@@ -24,7 +24,7 @@ abstract class Base {
     // By using reified, Kotlin handles the type casting under the hood, perfectly matching the return type.
     // T is constrained to be a non-nullable type.
     inline fun < reified T: Any> autoWired(clazz: Class<T>, nameBean: String?=null, base: Base?=null): T {
-        nameBean?.let { it ->
+        nameBean?.let {
             return context().getBean(it, clazz)
         }
         return try {

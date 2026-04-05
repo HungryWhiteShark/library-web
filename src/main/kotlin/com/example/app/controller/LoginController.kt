@@ -6,9 +6,11 @@ import com.example.app.model.dto.LoginResponseDTO
 import com.example.app.model.dto.UserInfoRequest
 import com.example.app.model.model.UserModel
 import com.example.app.model.service.AuthenticationService
+import com.example.app.model.service.DeviceInfoService
 import com.example.app.utils.LogUtils
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import org.springframework.http.HttpHeaders
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
@@ -27,9 +29,9 @@ class LoginController(
             val userAgent = req.getHeader("User-Agent") ?: "Unknown"
             val authResponse = authService.authentication(authRequest, userAgent, ipAddress)
             val cookie = authService.createCookie(authResponse.refreshToken!!, null)
-            response.addCookie(cookie)
-            val user = hashMapOf<String, Any>()
+            response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString())
 
+            val user = hashMapOf<String, Any>()
             userModel.getUserInfo(email = authRequest.email, null, false).first().let {
                 user["id"] = it.userId
                 user["fullName"] = it.fullName
@@ -71,9 +73,9 @@ class LoginController(
             val result = authService.refreshToken(requestToken)
             if (result.accessToken != null) {
                 val cookie = authService.createCookie(result.refreshToken!!, null)
-                response.addCookie(cookie)
-                val user = hashMapOf<String, Any>()
+                response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString())
 
+                val user = hashMapOf<String, Any>()
                 userModel.getUserInfo(result.email, null, false).first().let {
                     user["id"] = it.userId
                     user["fullName"] = it.fullName
@@ -98,15 +100,29 @@ class LoginController(
     fun logout(
         @RequestHeader("Authorization") authHeader: String?,
         @CookieValue(name = "refresh_token", required = true) token: String?,
-        response: HttpServletResponse): ResponseEntity<Any> {
+        req: HttpServletRequest, response: HttpServletResponse): ResponseEntity<Any> {
+
         return try {
-            println(token)
-            if (token != null)
-                authService.deleteRefreshToken(token)
+            if (authHeader == null && token == null)
+                return responseData(null, 200, "Logged out successfully")
+
+            var email: String? = null
+
+            if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                val accessToken = authHeader.substring(7)
+                println(accessToken)
+                email = authService.extractUserEmail(accessToken)
+            }
+            if (token != null) {
+                val userAgent = req.getHeader("User-Agent") ?: "Unknown"
+                val deviceInfo = DeviceInfoService().getDeviceInfo(userAgent).message
+
+                val message = authService.deleteRefreshToken(email,deviceInfo, token)
+                if (message.isNotEmpty()) response(101, message)
+            }
 
             val cookie = authService.createCookie(null, 0)
-            response.addCookie(cookie)
-
+            response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString())
             responseData(null, 200, "Logged out successfully")
         }
         catch (e: Exception) {

@@ -10,7 +10,7 @@ import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.stereotype.Service
 import java.util.UUID
-import jakarta.servlet.http.Cookie
+import org.springframework.http.ResponseCookie
 
 
 
@@ -21,8 +21,8 @@ class AuthenticationService(
     , private val jwtUtil: JwtUtil
     , private val refreshTokenModel: RefreshTokenModel) {
 
-    fun authentication(authRequest: AuthenticationRequest,
-                            userAgent: String, ipAddress: String): AuthenticationResponse {
+    fun authentication(authRequest: AuthenticationRequest, userAgent: String,
+                       ipAddress: String): AuthenticationResponse {
 
         authManager.authenticate(UsernamePasswordAuthenticationToken(
             authRequest.email, authRequest.password
@@ -56,25 +56,42 @@ class AuthenticationService(
     }
 
 
-    fun deleteRefreshToken(refreshToken: String?) {
-        refreshTokenModel.deleteRefreshToken(refreshToken).message.let {
-            if (it.isEmpty()) {
-                LogUtils.logInfo("refresh token deleted successfully")
+
+    fun deleteRefreshToken(email: String?, deviceInfo: String?, refreshToken: String?): String {
+        try {
+            val returnMessage = refreshTokenModel.deleteRefreshToken(email, deviceInfo, refreshToken).message
+            returnMessage.let {
+                if (it.isEmpty()) {
+                    LogUtils.logInfo("refresh token deleted successfully")
+                    return ""
+                }
             }
-            else LogUtils.logError(it)
+            LogUtils.logError(returnMessage)
+            return returnMessage
+
+        }
+        catch (e: Exception) {
+            LogUtils.logError(e.localizedMessage)
+            return e.localizedMessage
         }
     }
 
 
-    fun createCookie(refreshToken: String?, maxAge: Int?): Cookie {
-        val cookie = Cookie("refresh_token", refreshToken)
 
-        cookie.isHttpOnly = true // prevent JS access
-        cookie.secure = false
-        cookie.path = "/"
-        cookie.maxAge = maxAge ?: (15 * 24 * 60 * 6)  // 15 days
-
+    fun createCookie(refreshToken: String?, maxAge: Long?): ResponseCookie {
+        val cookie = ResponseCookie.from("refresh_token", refreshToken ?: "")
+            .httpOnly(true) // prevent JS access
+            .secure(true)
+            .path("/")
+            .maxAge(maxAge ?: (15 * 24 * 60 * 6)) // 15 days
+            .sameSite("None")
+            .build()
         return cookie
+    }
+
+
+    fun extractUserEmail(username: String): String? {
+        return jwtUtil.extractEmail(username)
     }
 
 }

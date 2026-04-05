@@ -66,9 +66,9 @@ class RefreshTokenModel(
     }
 
 
-    fun deleteRefreshToken(tokenValue: String?): Result {
+    fun deleteRefreshToken(email: String?, deviceInfo: String?, tokenValue: String?): Result {
         return try {
-            refreshTokenRepo.getRefreshToken(requestToken = tokenValue).firstOrNull().let {
+            refreshTokenRepo.getRefreshToken(email, deviceInfo, tokenValue).firstOrNull().let {
                 if (it != null) {
                     return Result("", 100, refreshTokenRepo.deleteRefreshToken(it))
                 }
