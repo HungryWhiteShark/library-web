@@ -7,7 +7,7 @@ import jakarta.transaction.Transactional
 import org.springframework.jdbc.core.BeanPropertyRowMapper
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
-
+import java.time.LocalDateTime
 
 
 @Repository
@@ -25,10 +25,11 @@ class UserInfoRepo(private val jdbc: NamedParameterJdbcTemplate, private val db:
                 append(" like '%' ")
             }
 
-            deleted.let {
-                append(" and deleted = :deleted ")
-                params["deleted"] = it
+            if (deleted) {
+                append(" and deleted is not null ")
             }
+            else append(" and deleted is null ")
+
             if (userId > 0) {
                 append(" and user_id = :id ")
                 params["id"] = userId
@@ -54,7 +55,7 @@ class UserInfoRepo(private val jdbc: NamedParameterJdbcTemplate, private val db:
 
 
     fun deleteUser(data: UserInfo): UserInfo? {
-        data.deleted = true
+        data.deleted = LocalDateTime.now()
         return db.save(data)
     }
 

@@ -1,6 +1,7 @@
 package com.example.app.db
 
 import jakarta.persistence.*
+import jakarta.persistence.GenerationType
 import org.hibernate.annotations.CreationTimestamp
 import org.hibernate.annotations.UpdateTimestamp
 import java.io.Serializable
@@ -10,42 +11,45 @@ import java.time.LocalDateTime
 
 @Entity
 @Table(
-    name = UserInfo.TABLE,
+    name = BookInfo.TABLE,
     indexes = [
-        Index(name = "idx_${UserInfo.TABLE}_userId", columnList = "userId")
+        Index(name = "idx_${BookInfo.TABLE}_bookId", columnList = "bookId")
     ]
 )
-data class UserInfo (
+data class BookInfo (
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var userId: Long = 0L,
+    var bookId: Long = 0L,
 
     @Column(columnDefinition = "text", nullable = false)
-    var citizenId: String = "",
+    var bookTitle: String = "",
 
     @Column(columnDefinition = "text", nullable = false)
-    var password: String = "",
+    var bookAuthor: String = "",
 
     @Column(columnDefinition = "text", nullable = false)
-    var fullName: String = "",
+    var bookDescription: String = "",
 
     @Column(columnDefinition = "text", nullable = false)
-    var email: String = "",
-
-    @Column(columnDefinition = "int")
-    var age: Int = 0,
-
-    @Column(columnDefinition = "boolean", nullable = false)
-    var gender: Boolean = true,
+    var bookLanguage: String = "",
 
     @Column(columnDefinition = "text", nullable = true)
-    var phoneNumber: String? = "",
+    var bookIsbn: String? = null,
 
-    @Column(columnDefinition = "int")
-    var role: Int = 2,
+    @Column(columnDefinition = "text", nullable = false)
+    var bookGenres: String = "",
+
+    @Column(columnDefinition = "text", nullable = false)
+    var bookFormat: String = "",
 
     @Column(columnDefinition = "text", nullable = true)
-    var avatar: String? = "",
+    var bookEdition: String? = null,
+
+    @Column(columnDefinition = "text", nullable = true)
+    var bookPublisher: String? = null,
+
+    @Column(columnDefinition = "text", nullable = true)
+    var bookPublishDate: String? = null,
 
     @CreationTimestamp
     var dateCreated: LocalDateTime = LocalDateTime.now(),
@@ -54,10 +58,10 @@ data class UserInfo (
     var dateUpdated: LocalDateTime = LocalDateTime.now(),
 
     @Column(columnDefinition = "timestamp", nullable = true)
-    var deleted: LocalDateTime? = null
+    var deleted: LocalDateTime = LocalDateTime.now()
 
 ): Serializable {
     companion object {
-        const val TABLE = "user_info"
+        const val TABLE = "book_info"
     }
 }

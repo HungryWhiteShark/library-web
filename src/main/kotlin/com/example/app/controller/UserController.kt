@@ -18,9 +18,7 @@ class UserController(private val userModel: UserModel): BaseController() {
     @GetMapping(value = ["/user"])
     fun getUserInfo(@RequestParam email: String?, @RequestParam citizenId: String?, @RequestParam deleted: Boolean): ResponseEntity<Any> {
         return try {
-            val result = userModel.getUserInfo(email, citizenId, deleted)
-            return if (result.isNotEmpty()) responseData(result)
-            else response(101, "error")
+            responseData(userModel.getUserInfo(email, citizenId, deleted))
         }
         catch (e: Exception) {
             LogUtils.logError(e.message.toString())

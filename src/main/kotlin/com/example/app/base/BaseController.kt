@@ -64,11 +64,6 @@ open class BaseController: ResponseEntityExceptionHandler() {
     }
 
 
-    protected fun response(response: BaseResponse): ResponseEntity<*> {
-        return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(response)
-    }
-
-
     protected fun<T> responseData(data: T?, code: Int = 100, message: String = "success"): ResponseEntity<Any> {
         return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(
             BaseResponse.Data(data, code, message)

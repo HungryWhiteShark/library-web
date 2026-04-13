@@ -27,6 +27,7 @@ class UserModel(private val userRepo: UserInfoRepo) {
         )
     }
 
+
     fun registerUser(user: UserInfoRequest): Result {
         return try {
             userRepo.getUserInfo(email = user.email, citizenId = user.citizenId).firstOrNull().let {
