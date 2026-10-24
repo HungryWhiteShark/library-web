@@ -29,7 +29,6 @@ class JwtUtil(private val jwtProperties: JwtProperties): BaseService() {
 
     fun buildToken(extraClaims: HashMap<String, Any>, userDetail: UserDetails, expire: Long): String {
         val roles = userDetail.authorities.map { it.authority }
-        println(roles)
         extraClaims["roles"] = roles
 
         return Jwts.builder()

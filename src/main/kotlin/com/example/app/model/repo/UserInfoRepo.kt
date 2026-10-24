@@ -13,7 +13,7 @@ import java.time.LocalDateTime
 @Repository
 @Transactional
 class UserInfoRepo(private val jdbc: NamedParameterJdbcTemplate, private val db: DatabaseService) {
-    fun getUserInfo(password: String? = null, userId: Long = 0L, email: String? = null,
+    fun getUserInfo(password: String? = null, email: String? = null,
                     citizenId: String? = null, deleted: Boolean = false): List<UserInfoResponse> {
         val params = hashMapOf<String, Any>()
         val sql = buildString {
@@ -29,11 +29,6 @@ class UserInfoRepo(private val jdbc: NamedParameterJdbcTemplate, private val db:
                 append(" and deleted is not null ")
             }
             else append(" and deleted is null ")
-
-            if (userId > 0) {
-                append(" and user_id = :id ")
-                params["id"] = userId
-            }
             citizenId?.let {
                 append(" and citizen_id = :citizen ")
                 params["citizen"] = it

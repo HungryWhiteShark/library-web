@@ -12,16 +12,16 @@ import java.time.LocalDateTime
 @Table(
     name = UserInfo.TABLE,
     indexes = [
-        Index(name = "idx_${UserInfo.TABLE}_userId", columnList = "userId")
+        Index(name = "idx_${UserInfo.TABLE}_email", columnList = "email")
     ]
 )
 data class UserInfo (
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var userId: Long = 0L,
-
     @Column(columnDefinition = "text", nullable = false)
-    var citizenId: String = "",
+    var email: String = "",
+
+    @Column(columnDefinition = "text", nullable = true)
+    var citizenId: String? = null,
 
     @Column(columnDefinition = "text", nullable = false)
     var password: String = "",
@@ -29,28 +29,25 @@ data class UserInfo (
     @Column(columnDefinition = "text", nullable = false)
     var fullName: String = "",
 
-    @Column(columnDefinition = "text", nullable = false)
-    var email: String = "",
-
-    @Column(columnDefinition = "int")
-    var age: Int = 0,
+    @Column(updatable = true)
+    var birthdate: LocalDateTime? = null,
 
     @Column(columnDefinition = "boolean", nullable = false)
     var gender: Boolean = true,
 
     @Column(columnDefinition = "text", nullable = true)
-    var phoneNumber: String? = "",
+    var phoneNumber: String? = null,
 
     @Column(columnDefinition = "int")
     var role: Int = 2,
 
     @Column(columnDefinition = "text", nullable = true)
-    var avatar: String? = "",
+    var avatar: String? = null,
 
-    @CreationTimestamp
+    @Column(name = "date_created", updatable = false)
     var dateCreated: LocalDateTime = LocalDateTime.now(),
 
-    @UpdateTimestamp
+    @Column(name = "date_updated", updatable = false)
     var dateUpdated: LocalDateTime = LocalDateTime.now(),
 
     @Column(columnDefinition = "timestamp", nullable = true)
@@ -58,6 +55,6 @@ data class UserInfo (
 
 ): Serializable {
     companion object {
-        const val TABLE = "user_info"
+        const val TABLE = "lib_user"
     }
 }

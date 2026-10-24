@@ -27,10 +27,10 @@ class UserController(private val userModel: UserModel): BaseController() {
     }
 
 
-    @PostMapping(value = ["/profile"])
-    fun updateUserInfo(@RequestParam id: Long, @RequestParam req: UserInfoRequest): ResponseEntity<Any> {
+    @PutMapping(value = ["/profile"])
+    fun updateUserInfo(@RequestBody req: UserInfoRequest): ResponseEntity<Any> {
         return try {
-            val result = userModel.updateUserInfo(id, req)
+            val result = userModel.updateUserInfo(req)
             return if (result.success) responseData(result.data)
             else response(result.code, result.message)
         }
@@ -42,9 +42,9 @@ class UserController(private val userModel: UserModel): BaseController() {
 
 
     @DeleteMapping(value = ["/delete"])
-    fun deleteUserInfo(@RequestParam id: Long): ResponseEntity<Any> {
+    fun deleteUserInfo(@RequestParam email: String): ResponseEntity<Any> {
         return try {
-            val result = userModel.deleteUserInfo(id)
+            val result = userModel.deleteUserInfo(email)
             return if (result.success) responseData(result.data)
             else response(result.code, result.message)
         }

@@ -17,20 +17,12 @@ class DatabaseService: BaseService() {
 
     @Transactional
     fun<T> save (entity: T): T? {
-        val session = entityManager.entityManagerFactory.unwrap(SessionFactory::class.java).openSession()
         return try {
-            session.transaction.begin()
-            val managedEntity = session.merge(entity)
-            session.transaction.commit()
-            managedEntity
+            entityManager.merge(entity)
         }
         catch (e: Exception) {
-            session.transaction.rollback()
             LogUtils.logError(e.message.toString())
             null
-        }
-        finally {
-            session.close()
         }
     }
 

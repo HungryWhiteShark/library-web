@@ -1,25 +1,29 @@
 package com.example.app.model.dto
 
+import java.time.LocalDateTime
+
+
 data class UserInfoRequest(
-    var citizenId: String = "",
-    var password: String = "",
-    var fullName: String = "",
     var email: String = "",
-    var age: Int = 0,
+    var password: String = "",
+    var citizenId: String? = null,
+    var fullName: String = "",
+    var birthdate: LocalDateTime? = null,
     var gender: Boolean = true,
-    var phoneNumber: String = ""
+    var phoneNumber: String? = null,
+    var avatar: String? = null,
+    var role: Int = 2
 )
 
 
 data class UserInfoResponse(
-    var userId: Long = 0L,
-    var citizenId: String = "",
+    var citizenId: String? = null,
     var fullName: String = "",
     var email: String = "",
     var password: String = "",
-    var age: Int = 0,
+    var birthdate: LocalDateTime? = null,
     var gender: Boolean = true,
-    var phoneNumber: String = "",
+    var phoneNumber: String? = null,
     var role: Int = 0,
-    var avatar: String = ""
+    var avatar: String? = null
 )

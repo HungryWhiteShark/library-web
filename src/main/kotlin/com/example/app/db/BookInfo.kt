@@ -62,6 +62,6 @@ data class BookInfo (
 
 ): Serializable {
     companion object {
-        const val TABLE = "book_info"
+        const val TABLE = "lib_book"
     }
 }

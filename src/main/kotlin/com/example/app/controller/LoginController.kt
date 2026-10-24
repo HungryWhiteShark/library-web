@@ -33,9 +33,8 @@ class LoginController(
 
             val user = hashMapOf<String, Any>()
             userModel.getUserInfo(email = authRequest.email, null, false).first().let {
-                user["id"] = it.userId
                 user["fullName"] = it.fullName
-                user["avatar"] = it.avatar
+                user["avatar"] = it.avatar ?: ""
                 user["role"] = it.role
             }
             user["email"] = authRequest.email
@@ -77,9 +76,8 @@ class LoginController(
 
                 val user = hashMapOf<String, Any>()
                 userModel.getUserInfo(result.email, null, false).first().let {
-                    user["id"] = it.userId
                     user["fullName"] = it.fullName
-                    user["avatar"] = it.avatar
+                    user["avatar"] = it.avatar ?: ""
                     user["role"] = it.role
                 }
                 user["email"] = result.email.toString()
@@ -110,7 +108,6 @@ class LoginController(
 
             if (authHeader != null && authHeader.startsWith("Bearer ")) {
                 val accessToken = authHeader.substring(7)
-                println(accessToken)
                 email = authService.extractUserEmail(accessToken)
             }
             if (token != null) {

@@ -16,14 +16,14 @@ class UserModel(private val userRepo: UserInfoRepo) {
 
     fun UserInfoResponse.toUserInfo(): UserInfo {
         return UserInfo(
-            userId = this.userId,
             fullName = this.fullName,
             email = this.email,
             gender = this.gender,
             citizenId = this.citizenId,
-            age = this.age,
+            birthdate = this.birthdate,
             phoneNumber = this.phoneNumber,
-            role = this.role
+            role = this.role,
+            password = this.password
         )
     }
 
@@ -39,13 +39,15 @@ class UserModel(private val userRepo: UserInfoRepo) {
                         citizenId = user.citizenId,
                         password = hashedPassword!!,
                         fullName = user.fullName,
-                        age = user.age,
+                        birthdate = user.birthdate,
                         gender = user.gender,
+                        avatar = user.avatar,
                         role = 2
                     )
                     return Result("", 100, userRepo.addUser(new))
                 }
             }
+
             LogUtils.logInfo("user-already-exist")
             Result("user-already-exist", 101)
         }
@@ -68,13 +70,14 @@ class UserModel(private val userRepo: UserInfoRepo) {
     }
 
 
-    fun deleteUserInfo(id: Long): Result {
+    fun deleteUserInfo(email: String): Result {
         return try {
-            userRepo.getUserInfo(userId = id).firstOrNull().let {
+            userRepo.getUserInfo(email = email).firstOrNull().let {
                 if (it != null) {
                     return Result("", 100, userRepo.deleteUser(it.toUserInfo()))
                 }
             }
+
             LogUtils.logInfo("user-info-not-found")
             Result("user-info-not-found", 101)
         }
@@ -85,21 +88,22 @@ class UserModel(private val userRepo: UserInfoRepo) {
     }
 
 
-    fun updateUserInfo(id: Long, req: UserInfoRequest): Result {
+    fun updateUserInfo(req: UserInfoRequest): Result {
         return try {
-            userRepo.getUserInfo(userId = id).firstOrNull().let {
+            userRepo.getUserInfo(email = req.email).firstOrNull().let {
                 if (it != null) {
-                    val new = UserInfo(
-                        citizenId = req.citizenId,
-                        email = req.email,
-                        gender = req.gender,
-                        age = req.age,
-                        fullName = req.fullName,
-                        phoneNumber = req.phoneNumber
-                    )
-                    return Result("", 100, userRepo.addUser(new))
+                    it.citizenId = req.citizenId
+                    it.gender = req.gender
+                    it.birthdate = req.birthdate
+                    it.fullName = req.fullName
+                    it.phoneNumber = req.phoneNumber
+                    it.avatar = req.avatar
+                    it.role = req.role
+                    it.password = req.password
+                    return Result("", 100, userRepo.addUser(it.toUserInfo()))
                 }
             }
+
             LogUtils.logInfo("user-info-not-found")
             Result("user-info-not-found", 101)
         }
@@ -119,6 +123,7 @@ class UserModel(private val userRepo: UserInfoRepo) {
                     return Result("", 100, userRepo.addUser(it.toUserInfo()))
                 }
             }
+
             LogUtils.logInfo("old-password-not-correct")
             Result("old-password-not-correct", 100)
         }
