@@ -15,7 +15,7 @@ class TokenCleanUp(private val jdbc: NamedParameterJdbcTemplate) {
 
         val params = hashMapOf<String, Any>()
         val sql = buildString {
-            append(" delete from test.${RefreshToken.TABLE} where expiry_date < :now ")
+            append(" delete from ${RefreshToken.TABLE} where expiry_date < :now ")
             params["now"] = System.currentTimeMillis()
         }
 
